@@ -1,5 +1,5 @@
-function [PackBc, PackCc, UnpackCc, CopyBr, StreamAr, StreamBr, StreamCc, ...
-          BrMemL1, BcMemL3, CcMemL2 ] = gemm_blis_B3C2A0( m, n, k, MC, NC, KC, MR, KR )
+function [PackBc, PackCc, UnpackCc, CopyCr, StreamAr, StreamBr, StreamCc, ...
+          BrMemL1, BcMemL3, CcMemL2 ] = gemm_blis_C3B2A0( m, n, k, MC, NC, KC, MR, KR )
 
   % Kilobyte
   KiB  = 2^10;
@@ -26,7 +26,7 @@ function [PackBc, PackCc, UnpackCc, CopyBr, StreamAr, StreamBr, StreamCc, ...
   TRPackBc   = 5.76E-01;
   TRPackCc   = 5.44E-01;
   TRUnpackCc = 6.61E-01;
-  TRCopyBr   = 1.76E+01;
+  TRCopyCr   = 1.76E+01; %TRCopyBr   = 1.76E+01; 
   TRStreamAr = 4.39E-01;
   TRStreamBr = 1.82E+02;
   TRStreamCc = 6.92E+00;
@@ -70,11 +70,11 @@ function [PackBc, PackCc, UnpackCc, CopyBr, StreamAr, StreamBr, StreamCc, ...
   %
   % Calculate volume of data transfers
   %
-  PackBc    = 0;   % L3 --> L2 --> L3        (pack B to Bc)
-  PackCc    = 0;   % L3 --> L2               (pack C to Cc)
+  PackCc    = 0;   % L3 --> L2 --> L3        (pack C to Cc)
+  PackBc    = 0;   % L3 --> L2               (pack B to Bc)
   UnpackCc  = 0;   % L2 --> L3               (Unpack Cc to C)
-  CopyBr    = 0;   % L3 --> L2 --> L1        (pack Bc to Br)
-  StreamAr  = 0;   % L3 --> registers
+  CopyCr    = 0;   % L3 --> L2 --> L1        (pack Cc to Cr)
+  StreamAr  = 0;   % L3 --> L2 --> registers
   StreamBr  = 0;   % L1 --> registers
   StreamCc  = 0;   % L2 --> registers --> L2
 
@@ -82,27 +82,27 @@ function [PackBc, PackCc, UnpackCc, CopyBr, StreamAr, StreamBr, StreamCc, ...
   for jc=[0:NC:n-1]
     nc = min(n-jc, NC); 
 
-    %% loop 2: pc:kc:k
-    for pc=[0:KC:k-1]
-      kc = min(k-pc, KC); 
-      % // pack_B( kc, nc ); % L3 --> L2 --> L3 (multiply by 2)
-      PackBc = PackBc + 2 * kc * nc; 
+    %% loop 2: ic:mc:m
+    for ic=[0:MC:m-1]
+      mc = min(m-ic, MC); 
+      % // pack_C( mc, nc ); % L3 --> L2 --> L3 (multiply by 2)
+      PackCc = PackCc + 2 * mc * nc; 
       
       %% loop 3: ic:m:mc
-      for ic=[0:MC:m-1]
-        mc = min(m-ic, MC); 
-        % // pack_C( mc, nc ); L3 (RAM) --> L2
-        PackCc  = PackCc + mc * nc; 
+      for pc=[0:KC:k-1]
+        kc = min(k-pc, KC); 
+        % // pack_B( kc, nc ); L3 (RAM) --> L2
+        PackBc  = PackBc + kc * nc; 
 
-        %% loop 4: pr:kc:kr
-        for pr=[0:KR:k-1]
-          kr = min(kc-pr, KR); 
-          % // pack_B( kr, nc ) L3 --> L1
-          CopyBr = CopyBr + kr * nc; 
+        %% loop 4: ir:mc:mr
+        for ir=[0:MC:mc-1]
+          mr = min(mc-ir, MC); 
+          % // Copy_C( mr, nc ) L3 --> L1
+          CopyCr = CopyCr + mr * nc; 
 
-          %% loop 5: ir:mc:mr
-          for ir=[0:MR:mc-1]
-            mr = min(mc-ir, MR); 
+          %% loop 5: pr:kc:kr
+          for pr=[0:KR:kc-1]
+            kr = min(kc-pr, KR); 
             % // gemm_base_ABresident( orderA, transA, mr, nc, kr, alpha, 
             % // Aptr, ldA, &Bc[pr*nc], KR, betaII, &Cc[ir*nc], MR );
             StreamAr = StreamAr + mr * kr; 
@@ -117,22 +117,22 @@ function [PackBc, PackCc, UnpackCc, CopyBr, StreamAr, StreamBr, StreamCc, ...
   end
 
   % -------------------------------------------------------------------------------------------
-  % Estimate execution time
+  % Estimate execution time :
   % -------------------------------------------------------------------------------------------
-  TimePackBc   =  PackBc   / (TRPackBc   * MiB);
-  TimePackCc   =  PackCc   / (TRPackCc   * MiB);
-  TimeUnpackCc =  UnpackCc / (TRUnpackCc * MiB);
-  TimeCopyBr   =  CopyBr   / (TRCopyBr   * MiB);
-  TimeStreamAr =  StreamAr / (TRStreamAr * MiB);
-  TimeStreamBr =  StreamBr / (TRStreamBr * MiB);
-  TimeStreamCc =  StreamCc / (TRStreamCc * MiB);
+  TimePackBc   = DataSize * PackBc   / (TRPackBc * MiB);
+  TimePackCc   = DataSize * PackCc   / (TRPackCc * MiB);
+  TimeUnpackCc = DataSize * UnpackCc / (TRUnpackCc * MiB);
+  TimeCopyCr   = DataSize * CopyCr   / (TRCopyCr * MiB);
+  TimeStreamAr = DataSize * StreamAr / (TRStreamAr * MiB);
+  TimeStreamBr = DataSize * StreamBr / (TRStreamBr * MiB);
+  TimeStreamCc = DataSize * StreamCc / (TRStreamCc * MiB);
 
-  INT8R       = 7.57E+1;
-  TimeINT8Ops = INT8Ops / INT8Rate;
+  INT8R     = 7.57E+1;
+  TimeINT8Ops   = INT8Ops / INT8Rate;
   Time = TimePackBc   + ...
          TimePackCc   + ...
          TimeUnpackCc + ...
-         TimeCopyBr   + ...
+         TimeCopyCr   + ...
          TimeStreamAr + ...
          TimeStreamBr + ...
          TimeStreamCc + ...
@@ -150,7 +150,7 @@ function [PackBc, PackCc, UnpackCc, CopyBr, StreamAr, StreamBr, StreamCc, ...
   fprintf("Pack Bc:          %6.2e        %6.2e       %6.2e\n", TimePackBc,   PackBc,   TRPackBc) 
   fprintf("Pack Cc:          %6.2e        %6.2e       %6.2e\n", TimePackCc,   PackCc,   TRPackCc) 
   fprintf("Unpack Cc:        %6.2e        %6.2e       %6.2e\n", TimeUnpackCc, UnpackCc, TRUnpackCc) 
-  fprintf("Copy Br:          %6.2e        %6.2e       %6.2e\n", TimeCopyBr,   CopyBr,   TRCopyBr) 
+  fprintf("Copy Cr:          %6.2e        %6.2e       %6.2e\n", TimeCopyCr,   CopyCr,   TRCopyCr) 
   fprintf("Stream Ar:        %6.2e        %6.2e       %6.2e\n", TimeStreamAr, StreamAr, TRStreamAr) 
   fprintf("Stream Br:        %6.2e        %6.2e       %6.2e\n", TimeStreamBr, StreamBr, TRStreamBr) 
   fprintf("Stream Cc:        %6.2e        %6.2e       %6.2e\n", TimeStreamCc, StreamCc, TRStreamCc) 
