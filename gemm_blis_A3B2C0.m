@@ -1,5 +1,5 @@
 function [PackBc, PackCc, UnpackCc, CopyBr, StreamAr, StreamBr, StreamCc, ...
-          BrMemL1, BcMemL3, CcMemL2 ] = gemm_blis_B3C2A0( m, n, k, MC, NC, KC, MR, KR )
+          BrMemL1, BcMemL3, CcMemL2 ] = gemm_blis_A3B2C0( m, n, k, MC, NC, KC, MR, KR )
 
   % Kilobyte
   KiB  = 2^10;
@@ -78,31 +78,31 @@ function [PackBc, PackCc, UnpackCc, CopyBr, StreamAr, StreamBr, StreamCc, ...
   StreamBr  = 0;   % L1 --> registers
   StreamCc  = 0;   % L2 --> registers --> L2
 
-  %% loop 1: jc:n:nc
-  for jc=[0:NC:n-1]
-    nc = min(n-jc, NC); 
+  %% loop 1: 
+  for ic=[0:MC:m-1]
+    mc = min(m-ic, MC); 
 
-    %% loop 2: pc:kc:k
+    %% loop 2:
     for pc=[0:KC:k-1]
       kc = min(k-pc, KC); 
-      % // pack_B( kc, nc ); % L3 --> L2 --> L3 (multiply by 2)
-      PackBc = PackBc + 2 * kc * nc; 
+      % // pack_A( mc, nk ); % L3 --> L2 --> L3 (multiply by 2)
+      PackAc = PackAc + 2 * mc * kc; 
       
-      %% loop 3: ic:m:mc
-      for ic=[0:MC:m-1]
-        mc = min(m-ic, MC); 
-        % // pack_C( mc, nc ); L3 (RAM) --> L2
-        PackCc  = PackCc + mc * nc; 
+      %% loop 3:
+      for jc=[0:NC:n-1]
+        nc = min(n-jc, NC); 
+        % // pack_Bc( kc, nc ); L3 (RAM) --> L2
+        PackBc  = PackBc + kc * nc; 
 
-        %% loop 4: pr:kc:kr
-        for pr=[0:KR:kc-1]
-          kr = min(kc-pr, KR); 
+        %% loop 4:
+        for ir=[0:MR:mc-1]
+          mr = min(mc-pr, KR); 
           % // pack_B( kr, nc ) L3 --> L1
           CopyBr = CopyBr + kr * nc; 
 
-          %% loop 5: ir:mc:mr
-          for ir=[0:MR:mc-1]
-            mr = min(mc-ir, MR); 
+          %% loop 5: 
+          for jr=[0:NR:nc-1]
+            nr = min(nc-ir, NR); 
             % // gemm_base_ABresident( orderA, transA, mr, nc, kr, alpha, 
             % // Aptr, ldA, &Bc[pr*nc], KR, betaII, &Cc[ir*nc], MR );
             StreamAr = StreamAr + mr * kr; 
