@@ -1,4 +1,4 @@
-function [PackBc, PackCc, UnpackCc, CopyCr, StreamAr, StreamBc, StreamCr, ...
+function [PackBc, PackCc, UnpackCc, CopyCr, StreamAr, StreamBc, StreamCr, ....
           CrMemL1, CcMemL3, BcMemL2 ] = gemm_blis_C3B2A0( m, n, k, MC, NC, KC, MR, KR )
 
   % Kilobyte
@@ -23,13 +23,23 @@ function [PackBc, PackCc, UnpackCc, CopyCr, StreamAr, StreamBc, StreamCr, ...
   %
   % Experimental transfer rates (in MBytes/s)
   %
-  TRPackBc   = 5.44E-01 * (KR/4);  % L3-->L2
-  TRPackCc   = 5.76E-01 * (MR/4);  % L3-->L2-->L3
-  TRUnpackCc = 5.76E-01 * (MR/4);  % L3-->L2-->L3
-  TRCopyCr   = 1.76E+01;           % L3-->L1
-  TRStreamAr = 4.39E-01;           % L3-->Reg.
-  TRStreamBc = 6.92E+00;           % L2-->Reg.
-  TRStreamCr = 1.82E+02;           % L1-->Reg.
+  L1toReg    = 1.82E+02;
+  L2toReg    = 6.92E+00;
+  L3toReg    = 4.39E-01;
+  L3toL2toL3 = 5.76E-01;
+  L3toL1     = 1.76E+01;
+  L3toL2     = 5.44E-01;
+  L2toL3     = 6.61E-01;
+
+  %
+  TRPackBc   = L3toL2     * (KR/4);  % L3 --> L2
+  TRPackCc   = L3toL2toL3 * (MR/4);  % L3 --> L2 --> L3
+  TRUnpackCc = L3toL2toL3 * (MR/4);  % L3 --> L2 --> L3
+  TRCopyCr   = L3toL1;               % L3 --> L1
+  TRStreamAr = L3toReg;              % L3 --> Reg.
+  TRStreamBc = L2toReg;              % L2 --> Reg.
+  TRStreamCr = L1toReg;              % L1 --> Reg.
+
   %
   % Experimental Ops/s (in INT8 MOps/s)
   %
@@ -79,29 +89,29 @@ function [PackBc, PackCc, UnpackCc, CopyCr, StreamAr, StreamBc, StreamCr, ...
   StreamBc  = 0;   % L2 --> registers
   StreamCr  = 0;   % L1 --> registers --> L1
 
-  %% loop 1: jc:n:nc
+  %% loop 1: jc
   for jc=[0:NC:n-1]
     nc = min(n-jc, NC); 
 
-    %% loop 2: ic:mc:m
+    %% loop 2: ic
     for ic=[0:MC:m-1]
       mc = min(m-ic, MC); 
       % // pack_C( mc, nc ); % L3 --> L2 --> L3 (multiply by 2)
       PackCc = PackCc + 2 * mc * nc; 
       
-      %% loop 3: ic:m:mc
+      %% loop 3: pc
       for pc=[0:KC:k-1]
         kc = min(k-pc, KC); 
         % // pack_B( kc, nc ); L3 (RAM) --> L2
         PackBc  = PackBc + kc * nc; 
 
-        %% loop 4: ir:mc:mr
-        for ir=[0:MC:mc-1]
-          mr = min(mc-ir, MC); 
+        %% loop 4: ir
+        for ir=[0:MR:mc-1]
+          mr = min(mc-ir, MR); 
           % // Copy_C( mr, nc ) L3 --> L1
           CopyCr = CopyCr + mr * nc; 
 
-          %% loop 5: pr:kc:kr
+          %% loop 5: pr
           for pr=[0:KR:kc-1]
             kr = min(kc-pr, KR); 
             % // gemm_base_ABresident( orderA, transA, mr, nc, kr, alpha, 
@@ -110,7 +120,7 @@ function [PackBc, PackCc, UnpackCc, CopyCr, StreamAr, StreamBc, StreamCr, ...
             StreamBc = StreamBc + kr * nc;
             StreamCr = StreamCr + 2 * mr * nc; % L1 --> registers --> L1 (multiply by 2)
           end
-          %% Copy back Cr from L1 to L3
+          %% Copy back Cr L1 --> L3
           CopyCr = CopyCr + mr * nc; 
         end
       end
@@ -142,11 +152,6 @@ function [PackBc, PackCc, UnpackCc, CopyCr, StreamAr, StreamBc, StreamCr, ...
          TimeINT8Ops;
   INT8Rateactual = INT8Ops / Time;
 
-  fprintf("---------------------------------------------------------\n")
-  fprintf("m:  %4d n:  %4d k:  %4d\n", m, n, k);
-  fprintf("MC: %4d NC: %4d KC: %4d\n", MC, NC, KC);
-  fprintf("MR: %4d KR: %4d\n", MR, KR);
-  fprintf("Datatype %s\n", DataType);
   fprintf("---------------------------------------------------------\n")
   fprintf("Component         Time            #Reads/Writes  Mbytes/s\n")
   fprintf("---------------------------------------------------------\n")
