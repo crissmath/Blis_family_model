@@ -23,13 +23,13 @@ function [PackBc, PackCc, UnpackCc, CopyBr, StreamAr, StreamBr, StreamCc, ...
   %
   % Experimental transfer rates (in MBytes/s)
   %
-  TRPackBc   = 5.76E-01;
-  TRPackCc   = 5.44E-01;
-  TRUnpackCc = 6.61E-01;
-  TRCopyBr   = 1.76E+01;
-  TRStreamAr = 4.39E-01;
-  TRStreamBr = 1.82E+02;
-  TRStreamCc = 6.92E+00;
+  TRPackBc   = 5.76E-01 * (KR/4); % L3 --> L2 -->L3   (Pack B to Bc)
+  TRPackCc   = 5.44E-01 * (MR/4); % L3 --> L2         (Pack C to Cc)
+  TRUnpackCc = 6.61E-01 * (MR/4); % L2 --> L3         (UnPack Cc to C)
+  TRCopyBr   = 1.76E+01;          % L3 --> L1         (Copy Bc to Br)
+  TRStreamAr = 4.39E-01;         % L3 --> Reg        (Load Ar)
+  TRStreamBr = 1.82E+02;         % L1 --> Reg        (Load Br)
+  TRStreamCc = 6.92E+00;         % L2 --> Reg        (Load && write Cc)
   %
   % Experimental Ops/s (in INT8 MOps/s)
   %

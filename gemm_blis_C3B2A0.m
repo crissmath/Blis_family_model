@@ -1,5 +1,5 @@
-function [PackBc, PackCc, UnpackCc, CopyCr, StreamAr, StreamBr, StreamCc, ...
-          BrMemL1, BcMemL3, CcMemL2 ] = gemm_blis_C3B2A0( m, n, k, MC, NC, KC, MR, KR )
+function [PackBc, PackCc, UnpackCc, CopyCr, StreamAr, StreamBc, StreamCr, ...
+          CrMemL1, CcMemL3, BcMemL2 ] = gemm_blis_C3B2A0( m, n, k, MC, NC, KC, MR, KR )
 
   % Kilobyte
   KiB  = 2^10;
@@ -23,13 +23,13 @@ function [PackBc, PackCc, UnpackCc, CopyCr, StreamAr, StreamBr, StreamCc, ...
   %
   % Experimental transfer rates (in MBytes/s)
   %
-  TRPackBc   = 5.76E-01;
-  TRPackCc   = 5.44E-01;
-  TRUnpackCc = 6.61E-01;
-  TRCopyCr   = 1.76E+01; %TRCopyBr   = 1.76E+01; 
-  TRStreamAr = 4.39E-01;
-  TRStreamBr = 1.82E+02;
-  TRStreamCc = 6.92E+00;
+  TRPackBc   = 5.44E-01 * (KR/4);  % L3-->L2
+  TRPackCc   = 5.76E-01 * (MR/4);  % L3-->L2-->L3
+  TRUnpackCc = 5.76E-01 * (MR/4);  % L3-->L2-->L3
+  TRCopyCr   = 1.76E+01;           % L3-->L1
+  TRStreamAr = 4.39E-01;           % L3-->Reg.
+  TRStreamBc = 6.92E+00;           % L2-->Reg.
+  TRStreamCr = 1.82E+02;           % L1-->Reg.
   %
   % Experimental Ops/s (in INT8 MOps/s)
   %
@@ -47,23 +47,23 @@ function [PackBc, PackCc, UnpackCc, CopyCr, StreamAr, StreamBr, StreamCc, ...
   %
   % Size of buffers
   %
-  BrMemL1   = KR * NC / KiB;
-  BcMemL3   = KC * NC / KiB;
-  CcMemL2   = MC * NC / KiB;
+  CrMemL1   = MR * NC / KiB;
+  BcMemL2   = KC * NC / KiB;
+  CcMemL3   = MC * NC / KiB;
 
   %
   % Check memory capacity
   %
-  if (BrMemL1 > CapacityL1)
-    fprintf("*** Error: Br exceeds L1 capacity: %d KiB > %d KiB", BrMemL1, CapacityL1); 
+  if (CrMemL1 > CapacityL1)
+    fprintf("*** Error: Cr exceeds L1 capacity: %d KiB > %d KiB", CrMemL1, CapacityL1); 
     return
   end
-  if (BcMemL3 > CapacityL3)
-    fprintf("*** Error: Bc exceeds L3 capacity: %d KiB > %d KiB", BcMemL3, CapacityL3); 
+  if (BcMemL2 > CapacityL2)
+    fprintf("*** Error: Bc exceeds L2 capacity: %d KiB > %d KiB", BcMemL2, CapacityL2); 
     return
   end
-  if (CcMemL2 > CapacityL2)
-    fprintf("*** Error: Cc exceeds L2 capacity: %d KiB > %d KiB", CcMemL2, CapacityL2); 
+  if (CcMemL3 > CapacityL3)
+    fprintf("*** Error: Cc exceeds L3 capacity: %d KiB > %d KiB", CcMemL3, CapacityL3); 
     return
   end
 
@@ -72,11 +72,12 @@ function [PackBc, PackCc, UnpackCc, CopyCr, StreamAr, StreamBr, StreamCc, ...
   %
   PackCc    = 0;   % L3 --> L2 --> L3        (pack C to Cc)
   PackBc    = 0;   % L3 --> L2               (pack B to Bc)
-  UnpackCc  = 0;   % L2 --> L3               (Unpack Cc to C)
-  CopyCr    = 0;   % L3 --> L2 --> L1        (pack Cc to Cr)
-  StreamAr  = 0;   % L3 --> L2 --> registers
-  StreamBr  = 0;   % L1 --> registers
-  StreamCc  = 0;   % L2 --> registers --> L2
+  UnpackCc  = 0;   % L3 --> L2 --> L3        (Unpack Cc to C)
+  CopyCr    = 0;   % L3 --> L1               (pack Cc to Cr, and
+                   % L1 --> L3                unpack Cr to Cc)
+  StreamAr  = 0;   % L3 --> registers
+  StreamBc  = 0;   % L2 --> registers
+  StreamCr  = 0;   % L1 --> registers --> L1
 
   %% loop 1: jc:n:nc
   for jc=[0:NC:n-1]
@@ -106,13 +107,15 @@ function [PackBc, PackCc, UnpackCc, CopyCr, StreamAr, StreamBr, StreamCc, ...
             % // gemm_base_ABresident( orderA, transA, mr, nc, kr, alpha, 
             % // Aptr, ldA, &Bc[pr*nc], KR, betaII, &Cc[ir*nc], MR );
             StreamAr = StreamAr + mr * kr; 
-            StreamBr = StreamBr + kr * nc;
-            StreamCc = StreamCc + 2 * mr * nc; % L2 --> registers --> L2 (multiply by 2)
+            StreamBc = StreamBc + kr * nc;
+            StreamCr = StreamCr + 2 * mr * nc; % L1 --> registers --> L1 (multiply by 2)
           end
+          %% Copy back Cr from L1 to L3
+          CopyCr = CopyCr + mr * nc; 
         end
-        % // unpack_C( mc, nc ); L2 --> L3 (RAM) 
-        UnpackCc  = UnpackCc + mc * nc; 
       end
+      % // unpack_C( mc, nc ); L3 --> L2 --> L3 (RAM) 
+      UnpackCc  = UnpackCc + 2 * mc * nc; 
     end
   end
 
@@ -124,8 +127,8 @@ function [PackBc, PackCc, UnpackCc, CopyCr, StreamAr, StreamBr, StreamCc, ...
   TimeUnpackCc = DataSize * UnpackCc / (TRUnpackCc * MiB);
   TimeCopyCr   = DataSize * CopyCr   / (TRCopyCr * MiB);
   TimeStreamAr = DataSize * StreamAr / (TRStreamAr * MiB);
-  TimeStreamBr = DataSize * StreamBr / (TRStreamBr * MiB);
-  TimeStreamCc = DataSize * StreamCc / (TRStreamCc * MiB);
+  TimeStreamBc = DataSize * StreamBc / (TRStreamBc * MiB);
+  TimeStreamCr = DataSize * StreamCr / (TRStreamCr * MiB);
 
   INT8R     = 7.57E+1;
   TimeINT8Ops   = INT8Ops / INT8Rate;
@@ -134,8 +137,8 @@ function [PackBc, PackCc, UnpackCc, CopyCr, StreamAr, StreamBr, StreamCc, ...
          TimeUnpackCc + ...
          TimeCopyCr   + ...
          TimeStreamAr + ...
-         TimeStreamBr + ...
-         TimeStreamCc + ...
+         TimeStreamBc + ...
+         TimeStreamCr + ...
          TimeINT8Ops;
   INT8Rateactual = INT8Ops / Time;
 
@@ -152,8 +155,8 @@ function [PackBc, PackCc, UnpackCc, CopyCr, StreamAr, StreamBr, StreamCc, ...
   fprintf("Unpack Cc:        %6.2e        %6.2e       %6.2e\n", TimeUnpackCc, UnpackCc, TRUnpackCc) 
   fprintf("Copy Cr:          %6.2e        %6.2e       %6.2e\n", TimeCopyCr,   CopyCr,   TRCopyCr) 
   fprintf("Stream Ar:        %6.2e        %6.2e       %6.2e\n", TimeStreamAr, StreamAr, TRStreamAr) 
-  fprintf("Stream Br:        %6.2e        %6.2e       %6.2e\n", TimeStreamBr, StreamBr, TRStreamBr) 
-  fprintf("Stream Cc:        %6.2e        %6.2e       %6.2e\n", TimeStreamCc, StreamCc, TRStreamCc) 
+  fprintf("Stream Bc:        %6.2e        %6.2e       %6.2e\n", TimeStreamBc, StreamBc, TRStreamBc) 
+  fprintf("Stream Cr:        %6.2e        %6.2e       %6.2e\n", TimeStreamCr, StreamCr, TRStreamCr) 
   fprintf("\n");
   fprintf("Component         Time            #INT8 Ops    MINT8Ops/s\n")
   fprintf("---------------------------------------------------------\n")
@@ -162,7 +165,3 @@ function [PackBc, PackCc, UnpackCc, CopyCr, StreamAr, StreamBr, StreamCc, ...
   fprintf("Total:            %6.2e        %6.2e       %6.2e\n", Time, INT8Ops, INT8Rateactual/Mega) 
 %
 end
-
-
-
-
