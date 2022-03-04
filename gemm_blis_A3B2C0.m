@@ -1,5 +1,5 @@
-function [PackBc, PackCc, UnpackCc, CopyBr, StreamAr, StreamBr, StreamCc, ...
-          BrMemL1, BcMemL3, CcMemL2 ] = gemm_blis_A3B2C0( m, n, k, MC, NC, KC, MR, KR )
+function [PackBc, PackAc, UnpackAc, CopyAr, StreamAr, StreamBc, StreamCr, ...
+          ArMemL1, AcMemL3, BcMemL2 ] = gemm_blis_A3B2C0( m, n, k, MC, NC, KC, MR, KR, NR )
 
   % Kilobyte
   KiB  = 2^10;
@@ -23,13 +23,22 @@ function [PackBc, PackCc, UnpackCc, CopyBr, StreamAr, StreamBr, StreamCc, ...
   %
   % Experimental transfer rates (in MBytes/s)
   %
-  TRPackBc   = 5.76E-01 * (KR/4); % L3 --> L2 -->L3   (Pack B to Bc)
-  TRPackCc   = 5.44E-01 * (MR/4); % L3 --> L2         (Pack C to Cc)
-  TRUnpackCc = 6.61E-01 * (MR/4); % L2 --> L3         (UnPack Cc to C)
-  TRCopyBr   = 1.76E+01;          % L3 --> L1         (Copy Bc to Br)
-  TRStreamAr = 4.39E-01;         % L3 --> Reg        (Load Ar)
-  TRStreamBr = 1.82E+02;         % L1 --> Reg        (Load Br)
-  TRStreamCc = 6.92E+00;         % L2 --> Reg        (Load && write Cc)
+  L1toReg    = 1.82E+02;
+  L2toReg    = 6.92E+00;
+  L3toReg    = 4.39E-01;
+  L3toL2toL3 = 5.76E-01;
+  L3toL1     = 1.76E+01;
+  L3toL2     = 5.44E-01;
+  L2toL3     = 6.61E-01;
+ 
+  %
+  TRPackBc   = L3toL2     * (KR/4);   % L3 --> L2
+  TRPackAc   = L3toL2toL3 * (MR/4);   % L3 --> L2 --> L3
+  TRUnpackAc = L3toL2toL3 * (MR/4);   % L3 --> L2 --> L3
+  TRCopyAr   = L3toL1;                % L3 --> L1         
+  TRStreamAr = L1toReg;               % L1 --> Reg        (Load Ar)
+  TRStreamBc = L2toReg;               % L1 --> Reg        (Load Bc)
+  TRStreamCr = L3toReg;               % L2 --> Reg        (Load && write Cc)
   %
   % Experimental Ops/s (in INT8 MOps/s)
   %
@@ -47,71 +56,74 @@ function [PackBc, PackCc, UnpackCc, CopyBr, StreamAr, StreamBr, StreamCc, ...
   %
   % Size of buffers
   %
-  BrMemL1   = KR * NC / KiB;
-  BcMemL3   = KC * NC / KiB;
-  CcMemL2   = MC * NC / KiB;
+  ArMemL1   = MR * KC / KiB;
+  BcMemL2   = KC * NC / KiB;
+  AcMemL3   = MC * KC / KiB;
 
   %
   % Check memory capacity
   %
-  if (BrMemL1 > CapacityL1)
-    fprintf("*** Error: Br exceeds L1 capacity: %d KiB > %d KiB", BrMemL1, CapacityL1); 
+  if (ArMemL1 > CapacityL1)
+    fprintf("*** Error: Ar exceeds L1 capacity: %d KiB > %d KiB", ArMemL1, CapacityL1); 
     return
   end
-  if (BcMemL3 > CapacityL3)
-    fprintf("*** Error: Bc exceeds L3 capacity: %d KiB > %d KiB", BcMemL3, CapacityL3); 
+  if (BcMemL2 > CapacityL2)
+    fprintf("*** Error: Bc exceeds L2 capacity: %d KiB > %d KiB", BcMemL2, CapacityL2); 
     return
   end
-  if (CcMemL2 > CapacityL2)
-    fprintf("*** Error: Cc exceeds L2 capacity: %d KiB > %d KiB", CcMemL2, CapacityL2); 
+  if (AcMemL3 > CapacityL3)
+    fprintf("*** Error: Ac exceeds L3 capacity: %d KiB > %d KiB", AcMemL2, CapacityL3); 
     return
   end
 
   %
   % Calculate volume of data transfers
   %
-  PackBc    = 0;   % L3 --> L2 --> L3        (pack B to Bc)
-  PackCc    = 0;   % L3 --> L2               (pack C to Cc)
-  UnpackCc  = 0;   % L2 --> L3               (Unpack Cc to C)
-  CopyBr    = 0;   % L3 --> L2 --> L1        (pack Bc to Br)
-  StreamAr  = 0;   % L3 --> registers
-  StreamBr  = 0;   % L1 --> registers
-  StreamCc  = 0;   % L2 --> registers --> L2
+  PackAc    = 0;   % L3 --> L2 --> L3        
+  PackBc    = 0;   % L3 --> L2               
+  UnpackAc  = 0;   % L3 --> L2 --> L3               
+  CopyAr    = 0;   % L3 --> L1
+                   % L1 --> L3        
+  StreamAr  = 0;   % L1 --> registers
+  StreamBc  = 0;   % L2 --> registers
+  StreamCr  = 0;   % L3 --> registers 
 
-  %% loop 1: 
+  %% loop 1: ic
   for ic=[0:MC:m-1]
     mc = min(m-ic, MC); 
 
-    %% loop 2:
+    %% loop 2: pc
     for pc=[0:KC:k-1]
       kc = min(k-pc, KC); 
       % // pack_A( mc, nk ); % L3 --> L2 --> L3 (multiply by 2)
       PackAc = PackAc + 2 * mc * kc; 
       
-      %% loop 3:
+      %% loop 3: jc
       for jc=[0:NC:n-1]
         nc = min(n-jc, NC); 
         % // pack_Bc( kc, nc ); L3 (RAM) --> L2
         PackBc  = PackBc + kc * nc; 
 
-        %% loop 4:
+        %% loop 4: ir
         for ir=[0:MR:mc-1]
-          mr = min(mc-pr, KR); 
-          % // pack_B( kr, nc ) L3 --> L1
-          CopyBr = CopyBr + kr * nc; 
+          mr = min(mc-ir, MR); 
+          % // pack_A( mr, kc ) L3 --> L1
+          CopyAr = CopyAr + mr * kc; 
 
-          %% loop 5: 
+          %% loop 5: jr
           for jr=[0:NR:nc-1]
-            nr = min(nc-ir, NR); 
+            nr = min(nc-jr, NR); 
             % // gemm_base_ABresident( orderA, transA, mr, nc, kr, alpha, 
             % // Aptr, ldA, &Bc[pr*nc], KR, betaII, &Cc[ir*nc], MR );
-            StreamAr = StreamAr + mr * kr; 
-            StreamBr = StreamBr + kr * nc;
-            StreamCc = StreamCc + 2 * mr * nc; % L2 --> registers --> L2 (multiply by 2)
+            StreamAr = StreamAr + mr * kc; 
+            StreamBc = StreamBc + kc * nr;
+            StreamCr = StreamCr + 2 * mr * nr; % L2 --> registers --> L2 (multiply by 2)
           end
+          %%Copy back Ar L1 --> L3
+          CopyAr = CopyAr + mr * kc;
         end
-        % // unpack_C( mc, nc ); L2 --> L3 (RAM) 
-        UnpackCc  = UnpackCc + mc * nc; 
+        % // unpack_A( mc, kc ); L2 --> L3 (RAM) 
+        UnpackAc  = UnpackAc + mc * kc; 
       end
     end
   end
@@ -119,41 +131,36 @@ function [PackBc, PackCc, UnpackCc, CopyBr, StreamAr, StreamBr, StreamCc, ...
   % -------------------------------------------------------------------------------------------
   % Estimate execution time
   % -------------------------------------------------------------------------------------------
-  TimePackBc   =  PackBc   / (TRPackBc   * MiB);
-  TimePackCc   =  PackCc   / (TRPackCc   * MiB);
-  TimeUnpackCc =  UnpackCc / (TRUnpackCc * MiB);
-  TimeCopyBr   =  CopyBr   / (TRCopyBr   * MiB);
-  TimeStreamAr =  StreamAr / (TRStreamAr * MiB);
-  TimeStreamBr =  StreamBr / (TRStreamBr * MiB);
-  TimeStreamCc =  StreamCc / (TRStreamCc * MiB);
+  TimePackBc   =  DataSize * PackBc   / (TRPackBc   * MiB);
+  TimePackAc   =  DataSize * PackAc   / (TRPackAc   * MiB);
+  TimeUnpackAc =  DataSize * UnpackAc / (TRUnpackAc * MiB);
+  TimeCopyAr   =  DataSize * CopyAr   / (TRCopyAr   * MiB);
+  TimeStreamAr =  DataSize * StreamAr / (TRStreamAr * MiB);
+  TimeStreamBc =  DataSize * StreamBc / (TRStreamBc * MiB);
+  TimeStreamCr =  DataSize * StreamCr / (TRStreamCr * MiB);
 
   INT8R       = 7.57E+1;
   TimeINT8Ops = INT8Ops / INT8Rate;
   Time = TimePackBc   + ...
-         TimePackCc   + ...
-         TimeUnpackCc + ...
-         TimeCopyBr   + ...
+         TimePackAc   + ...
+         TimeUnpackAc + ...
+         TimeCopyAr   + ...
          TimeStreamAr + ...
-         TimeStreamBr + ...
-         TimeStreamCc + ...
+         TimeStreamBc + ...
+         TimeStreamCr + ...
          TimeINT8Ops;
   INT8Rateactual = INT8Ops / Time;
 
   fprintf("---------------------------------------------------------\n")
-  fprintf("m:  %4d n:  %4d k:  %4d\n", m, n, k);
-  fprintf("MC: %4d NC: %4d KC: %4d\n", MC, NC, KC);
-  fprintf("MR: %4d KR: %4d\n", MR, KR);
-  fprintf("Datatype %s\n", DataType);
-  fprintf("---------------------------------------------------------\n")
   fprintf("Component         Time            #Reads/Writes  Mbytes/s\n")
   fprintf("---------------------------------------------------------\n")
   fprintf("Pack Bc:          %6.2e        %6.2e       %6.2e\n", TimePackBc,   PackBc,   TRPackBc) 
-  fprintf("Pack Cc:          %6.2e        %6.2e       %6.2e\n", TimePackCc,   PackCc,   TRPackCc) 
-  fprintf("Unpack Cc:        %6.2e        %6.2e       %6.2e\n", TimeUnpackCc, UnpackCc, TRUnpackCc) 
-  fprintf("Copy Br:          %6.2e        %6.2e       %6.2e\n", TimeCopyBr,   CopyBr,   TRCopyBr) 
+  fprintf("Pack Ac:          %6.2e        %6.2e       %6.2e\n", TimePackAc,   PackAc,   TRPackAc) 
+  fprintf("Unpack Ac:        %6.2e        %6.2e       %6.2e\n", TimeUnpackAc, UnpackAc, TRUnpackAc) 
+  fprintf("Copy Ar:          %6.2e        %6.2e       %6.2e\n", TimeCopyAr,   CopyAr,   TRCopyAr) 
   fprintf("Stream Ar:        %6.2e        %6.2e       %6.2e\n", TimeStreamAr, StreamAr, TRStreamAr) 
-  fprintf("Stream Br:        %6.2e        %6.2e       %6.2e\n", TimeStreamBr, StreamBr, TRStreamBr) 
-  fprintf("Stream Cc:        %6.2e        %6.2e       %6.2e\n", TimeStreamCc, StreamCc, TRStreamCc) 
+  fprintf("Stream Br:        %6.2e        %6.2e       %6.2e\n", TimeStreamBc, StreamBc, TRStreamBc) 
+  fprintf("Stream Cc:        %6.2e        %6.2e       %6.2e\n", TimeStreamCr, StreamCr, TRStreamCr) 
   fprintf("\n");
   fprintf("Component         Time            #INT8 Ops    MINT8Ops/s\n")
   fprintf("---------------------------------------------------------\n")

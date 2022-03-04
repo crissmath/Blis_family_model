@@ -65,15 +65,15 @@ function [PackBc, PackCc, UnpackCc, CopyBr, StreamAr, StreamBr, StreamCc, ...
   % Check memory capacity
   %
   if (BrMemL1 > CapacityL1)
-    printf("*** Error: Br exceeds L1 capacity: %d KiB > %d KiB", BrMemL1, CapacityL1); 
+    fprintf("*** Error: Br exceeds L1 capacity: %d KiB > %d KiB", BrMemL1, CapacityL1); 
     return
   end
   if (BcMemL3 > CapacityL3)
-    printf("*** Error: Bc exceeds L3 capacity: %d KiB > %d KiB", BcMemL3, CapacityL3); 
+    fprintf("*** Error: Bc exceeds L3 capacity: %d KiB > %d KiB", BcMemL3, CapacityL3); 
     return
   end
   if (CcMemL2 > CapacityL2)
-    printf("*** Error: Cc exceeds L2 capacity: %d KiB > %d KiB", CcMemL2, CapacityL2); 
+    fprintf("*** Error: Cc exceeds L2 capacity: %d KiB > %d KiB", CcMemL2, CapacityL2); 
     return
   end
 
@@ -116,7 +116,7 @@ function [PackBc, PackCc, UnpackCc, CopyBr, StreamAr, StreamBr, StreamCc, ...
 
             % // gemm_base_ABresident( orderA, transA, mr, nc, kr, alpha, 
             % // Aptr, ldA, &Bc[pr*nc], KR, betaII, &Cc[ir*nc], MR );
-            StreamAr = StreamAr + mr * kr; 
+            StreamAr = StreamAr + mr * kc; 
             StreamBr = StreamBr + kr * nc;
             StreamCc = StreamCc + 2 * mr * nc; % L2 --> registers --> L2 (multiply by 2)
           end
@@ -153,20 +153,20 @@ function [PackBc, PackCc, UnpackCc, CopyBr, StreamAr, StreamBr, StreamCc, ...
          TimeINT8OPS;
   INT8Rateactual = INT8OPS / Time;
 
-  printf("Component         Time            #Reads/Writes  Mbytes/s\n")
-  printf("---------------------------------------------------------\n")
-  printf("Pack Bc:          %6.2e        %6.2e       %6.2e\n", TimePackBc, PackBc, TRPackBc) 
-  printf("Pack Cc:          %6.2e        %6.2e       %6.2e\n", TimePackCc, PackCc, TRPackCc) 
-  printf("Unpack Cc:        %6.2e        %6.2e       %6.2e\n", TimeUnpackCc, UnpackCc, TRUnpackCc) 
-  printf("Copy Br:          %6.2e        %6.2e       %6.2e\n", TimeCopyBr, CopyBr, TRCopyBr) 
-  printf("Stream Ar:        %6.2e        %6.2e       %6.2e\n", TimeStreamAr, StreamAr, TRStreamAr) 
-  printf("Stream Br:        %6.2e        %6.2e       %6.2e\n", TimeStreamBr, StreamBr, TRStreamBr) 
-  printf("Stream Cc:        %6.2e        %6.2e       %6.2e\n", TimeStreamCc, StreamCc, TRStreamCc) 
-  printf("\n");
-  printf("Component         Time            #INT8 Ops    MINT8Ops/s\n")
-  printf("---------------------------------------------------------\n")
-  printf("Arithmetic:       %6.2e        %6.2e       %6.2e\n", TimeINT8OPS, INT8Ops, INT8Rate/Mega) 
-  printf("\n");
-  printf("Total:            %6.2e        %6.2e       %6.2e\n", Time, INT8Ops, INT8Rateactual/Mega) 
+  fprintf("Component         Time            #Reads/Writes  Mbytes/s\n")
+  fprintf("---------------------------------------------------------\n")
+  fprintf("Pack Bc:          %6.2e        %6.2e       %6.2e\n", TimePackBc, PackBc, TRPackBc) 
+  fprintf("Pack Cc:          %6.2e        %6.2e       %6.2e\n", TimePackCc, PackCc, TRPackCc) 
+  fprintf("Unpack Cc:        %6.2e        %6.2e       %6.2e\n", TimeUnpackCc, UnpackCc, TRUnpackCc) 
+  fprintf("Copy Br:          %6.2e        %6.2e       %6.2e\n", TimeCopyBr, CopyBr, TRCopyBr) 
+  fprintf("Stream Ar:        %6.2e        %6.2e       %6.2e\n", TimeStreamAr, StreamAr, TRStreamAr) 
+  fprintf("Stream Br:        %6.2e        %6.2e       %6.2e\n", TimeStreamBr, StreamBr, TRStreamBr) 
+  fprintf("Stream Cc:        %6.2e        %6.2e       %6.2e\n", TimeStreamCc, StreamCc, TRStreamCc) 
+  fprintf("\n");
+  fprintf("Component         Time            #INT8 Ops    MINT8Ops/s\n")
+  fprintf("---------------------------------------------------------\n")
+  fprintf("Arithmetic:       %6.2e        %6.2e       %6.2e\n", TimeINT8OPS, INT8Ops, INT8Rate/Mega) 
+  fprintf("\n");
+  fprintf("Total:            %6.2e        %6.2e       %6.2e\n", Time, INT8Ops, INT8Rateactual/Mega) 
 %
 end
