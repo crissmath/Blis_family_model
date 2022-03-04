@@ -11,7 +11,7 @@ n = 1536;
 k = 1024;
 
 MR = 4;
-KR = 12;
+KR = 4 ;
 NR = 4;
 
 %% if var_blis == 'B3C2A0'
@@ -41,11 +41,11 @@ NR = 4;
 %% elseif var_blis == 'A3B2C0'
     fprintf(" **** A3B2C0 ****\n");
         if MR==4 && KR==4 
-            MC = 1024; NC = 2048; KC = 128;
+            MC = 1024; NC = 128; KC = 2048;
         elseif MR==4 && KR==8
-            MC = 2048; NC = 1024; KC = 256;
+            MC = 2048; NC = 256; KC = 1024;
         elseif MR==4 && KR==12
-            MC = 3072; NC = 682;  KC = 384;
+            MC = 3072; NC = 384;  KC = 682;
         end
         %% MC = 128; NC = 128; KC = 128;
         [PackBc, PackAc, UnpackAc, CopyAr, StreamAr, StreamBc, StreamCc, ...

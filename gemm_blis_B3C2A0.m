@@ -107,7 +107,7 @@ function [PackBc, PackCc, UnpackCc, CopyBr, StreamAr, StreamBr, StreamCc, ...
         %% loop 4: pr
         for pr=[0:KR:kc-1]
           kr = min(kc-pr, KR); 
-          % // pack_B( kr, nc ) L3 --> L1
+          % // Copy_Br( kr, nc ) L3 --> L1
           CopyBr = CopyBr + kr * nc; 
 
           %% loop 5: ir
@@ -116,10 +116,12 @@ function [PackBc, PackCc, UnpackCc, CopyBr, StreamAr, StreamBr, StreamCc, ...
 
             % // gemm_base_ABresident( orderA, transA, mr, nc, kr, alpha, 
             % // Aptr, ldA, &Bc[pr*nc], KR, betaII, &Cc[ir*nc], MR );
-            StreamAr = StreamAr + mr * kc; 
+            StreamAr = StreamAr + mr * kr; 
             StreamBr = StreamBr + kr * nc;
             StreamCc = StreamCc + 2 * mr * nc; % L2 --> registers --> L2 (multiply by 2)
           end
+          %% Copy back Br L1 --> L3
+          CopyBr = CopyBr + kr * nc;
         end
         % // unpack_C( mc, nc ); L2 --> L3 (RAM) 
         UnpackCc  = UnpackCc + mc * nc; 

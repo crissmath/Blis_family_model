@@ -107,7 +107,7 @@ function [PackBc, PackAc, UnpackAc, CopyAr, StreamAr, StreamBc, StreamCr, ...
         %% loop 4: ir
         for ir=[0:MR:mc-1]
           mr = min(mc-ir, MR); 
-          % // pack_A( mr, kc ) L3 --> L1
+          % // Copy_A( mr, kc ) L3 --> L1
           CopyAr = CopyAr + mr * kc; 
 
           %% loop 5: jr
@@ -119,10 +119,10 @@ function [PackBc, PackAc, UnpackAc, CopyAr, StreamAr, StreamBc, StreamCr, ...
             StreamBc = StreamBc + kc * nr;
             StreamCr = StreamCr + 2 * mr * nr; % L2 --> registers --> L2 (multiply by 2)
           end
-          %%Copy back Ar L1 --> L3
+          %% Copy back Ar L1 --> L3
           CopyAr = CopyAr + mr * kc;
         end
-        % // unpack_A( mc, kc ); L2 --> L3 (RAM) 
+        % // unpack_B(kc, nc ); L2 --> L3 (RAM) 
         UnpackAc  = UnpackAc + mc * kc; 
       end
     end
