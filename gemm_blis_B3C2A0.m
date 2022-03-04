@@ -1,4 +1,4 @@
-function [PackBc, PackCc, UnpackCc, CopyBr, StreamAr, StreamBr, StreamCc, ...
+function [PackBc, PackCc, UnpackCc, CopyBr, StreamA, StreamBr, StreamCc, ...
           BrMemL1, BcMemL3, CcMemL2 ] = gemm_blis_B3C2A0( m, n, k, MC, NC, KC, MR, KR )
 
   % Kilobyte
@@ -36,7 +36,7 @@ function [PackBc, PackCc, UnpackCc, CopyBr, StreamAr, StreamBr, StreamCc, ...
   TRPackCc   = L3toL2     * (MR/4); % L3 --> L2
   TRUnpackCc = L2toL3     * (MR/4); % L2 --> L3
   TRCopyBr   = L3toL1;              % L3 --> L1
-  TRStreamAr = L3toReg;             % L3 --> Reg.
+  TRStreamA = L3toReg;             % L3 --> Reg.
   TRStreamBr = L1toReg;             % L1 --> Reg.
   TRStreamCc = L2toReg;             % L2 --> Reg.
 
@@ -84,7 +84,7 @@ function [PackBc, PackCc, UnpackCc, CopyBr, StreamAr, StreamBr, StreamCc, ...
   PackCc    = 0;    % L3 --> L2        (pack C to Cc)
   UnpackCc  = 0;    % L2 --> L3        (Unpack Cc to C)
   CopyBr    = 0;    % L3 --> L1        (pack Bc to Br)
-  StreamAr  = 0;   % L3 --> registers
+  StreamA  = 0;   % L3 --> registers
   StreamBr  = 0;   % L1 --> registers
   StreamCc  = 0;   % L2 --> registers --> L2
 
@@ -116,12 +116,10 @@ function [PackBc, PackCc, UnpackCc, CopyBr, StreamAr, StreamBr, StreamCc, ...
 
             % // gemm_base_ABresident( orderA, transA, mr, nc, kr, alpha, 
             % // Aptr, ldA, &Bc[pr*nc], KR, betaII, &Cc[ir*nc], MR );
-            StreamAr = StreamAr + mr * kr; 
+            StreamA = StreamA + mr * kr; 
             StreamBr = StreamBr + kr * nc;
             StreamCc = StreamCc + 2 * mr * nc; % L2 --> registers --> L2 (multiply by 2)
           end
-          %% Copy back Br L1 --> L3
-          CopyBr = CopyBr + kr * nc;
         end
         % // unpack_C( mc, nc ); L2 --> L3 (RAM) 
         UnpackCc  = UnpackCc + mc * nc; 
@@ -138,7 +136,7 @@ function [PackBc, PackCc, UnpackCc, CopyBr, StreamAr, StreamBr, StreamCc, ...
   TimePackCc     = DataSize * PackCc / (TRPackCc * MiB);
   TimeUnpackCc   = DataSize * UnpackCc / (TRUnpackCc * MiB);
   TimeCopyBr     = DataSize * CopyBr / (TRCopyBr * MiB);
-  TimeStreamAr   = DataSize * StreamAr / (TRStreamAr * MiB);
+  TimeStreamA   = DataSize * StreamA / (TRStreamA * MiB);
   TimeStreamBr   = DataSize * StreamBr / (TRStreamBr * MiB);
   TimeStreamCc   = DataSize * StreamCc / (TRStreamCc * MiB);
 
@@ -149,7 +147,7 @@ function [PackBc, PackCc, UnpackCc, CopyBr, StreamAr, StreamBr, StreamCc, ...
          TimePackCc   + ...
          TimeUnpackCc + ...
          TimeCopyBr   + ...
-         TimeStreamAr + ...
+         TimeStreamA + ...
          TimeStreamBr + ...
          TimeStreamCc + ...
          TimeINT8OPS;
@@ -161,7 +159,7 @@ function [PackBc, PackCc, UnpackCc, CopyBr, StreamAr, StreamBr, StreamCc, ...
   fprintf("Pack Cc:          %6.2e        %6.2e       %6.2e\n", TimePackCc, PackCc, TRPackCc) 
   fprintf("Unpack Cc:        %6.2e        %6.2e       %6.2e\n", TimeUnpackCc, UnpackCc, TRUnpackCc) 
   fprintf("Copy Br:          %6.2e        %6.2e       %6.2e\n", TimeCopyBr, CopyBr, TRCopyBr) 
-  fprintf("Stream Ar:        %6.2e        %6.2e       %6.2e\n", TimeStreamAr, StreamAr, TRStreamAr) 
+  fprintf("Stream A :        %6.2e        %6.2e       %6.2e\n", TimeStreamA, StreamA, TRStreamA) 
   fprintf("Stream Br:        %6.2e        %6.2e       %6.2e\n", TimeStreamBr, StreamBr, TRStreamBr) 
   fprintf("Stream Cc:        %6.2e        %6.2e       %6.2e\n", TimeStreamCc, StreamCc, TRStreamCc) 
   fprintf("\n");

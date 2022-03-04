@@ -8,7 +8,7 @@
 
 % ----------------------------------------------------------------------------
 % Intel Dunnington, FP64
-printf("----------------------------------------------------------------------\n")
+fprintf("----------------------------------------------------------------------\n")
 clear
 mr=4; nr=4;
 Sdata=8;
@@ -18,13 +18,13 @@ kc = model_level(SL1, NL1, CL1, WL1, Sdata, mr, nr);
 
 SL2=3072; WL2=12; NL2 = 4096; CL2 = SL2 / (WL2 * NL2);
 mc = model_level(SL2, NL2, CL2, WL2, Sdata, kc, nr);
-printf("Intel Dunnington, FP64:  kc = %d, mc = %d\n", kc, mc);
-printf("The results for this processor do not match those in the paper 'Analytical modeling is enough...'\n");
-printf("This is most likely an error in the paper\n");
+fprintf("Intel Dunnington, FP64:  kc = %d, mc = %d\n", kc, mc);
+fprintf("The results for this processor do not match those in the paper 'Analytical modeling is enough...'\n");
+fprintf("This is most likely an error in the paper\n");
 
 % ----------------------------------------------------------------------------
 % Intel Sandy Bridge, FP64
-printf("----------------------------------------------------------------------\n")
+fprintf("----------------------------------------------------------------------\n")
 clear
 mr=8; nr=4;
 Sdata=8;
@@ -34,11 +34,11 @@ kc = model_level(SL1, NL1, CL1, WL1, Sdata, mr, nr);
 
 SL2=256; WL2=8; NL2 = 512; CL2 = SL2 / (WL2 * NL2);
 mc = model_level(SL2, NL2, CL2, WL2, Sdata, kc, nr);
-printf("Intel SandyBridge, FP64: kc = %d, mc = %d\n", kc, mc);
+fprintf("Intel SandyBridge, FP64: kc = %d, mc = %d\n", kc, mc);
 
 % ----------------------------------------------------------------------------
 % AMD Kaveri, FP64
-printf("----------------------------------------------------------------------\n")
+fprintf("----------------------------------------------------------------------\n")
 clear
 mr=4; nr=6;
 Sdata=8;
@@ -48,11 +48,11 @@ kc = model_level(SL1, NL1, CL1, WL1, Sdata, mr, nr);
 
 SL2=2048; WL2=16; NL2 = 2048; CL2 = SL2 / (WL2 * NL2);
 mc = model_level(SL2, NL2, CL2, WL2, Sdata, kc, nr);
-printf("AMD Kaveri, FP64:        kc = %d, mc = %d\n", kc, mc);
+fprintf("AMD Kaveri, FP64:        kc = %d, mc = %d\n", kc, mc);
 
 % ----------------------------------------------------------------------------
 % TI C6678, FP64
-printf("----------------------------------------------------------------------\n")
+fprintf("----------------------------------------------------------------------\n")
 clear
 mr=4; nr=4;
 Sdata=8;
@@ -62,17 +62,13 @@ kc = model_level(SL1, NL1, CL1, WL1, Sdata, mr, nr);
 
 SL2=512; WL2=4; NL2 = 2048; CL2 = SL2 / (WL2 * NL2);
 mc = model_level(SL2, NL2, CL2, WL2, Sdata, kc, nr);
-printf("TI C6678, FP64:          kc = %d, mc = %d\n", kc, mc);
-
-% ----------------------------------------------------------------------------
-% ARM Carmel, FP32
-% https://en.wikichip.org/wiki/nvidia/microarchitectures/carmel
-printf("----------------------------------------------------------------------\n")
+fprintf("TI C6678, FP64:          kc = %d, mc = %d\n", kc, mc);
+fprintf("----------------------------------------------------------------------\n")
 clear
 mr=8; nr=8;
 Sdata=4;
-printf("\tkernel %dx%d \n", mr, nr);
-printf("----------------------------------------------------------------------\n")
+fprintf("\tkernel %dx%d \n", mr, nr);
+fprintf("----------------------------------------------------------------------\n")
 SL1=64; WL1=4; NL1 = 128; CL1 = SL1 / (WL1 * NL1);
 kc = model_level(SL1, NL1, CL1, WL1, Sdata, mr, nr);
 %
@@ -130,19 +126,19 @@ nc = model_level(SL3, NL3, CL3, WL3, Sdata, mc, kc);
 
 % Bc en L3 --> mc x kc
 
-printf("ARM Carmel, FP32:        kc = %d, mc = %d, nc = %d\n", kc, mc, nc);
-printf("----------------------------------------------------------------------\n")
+fprintf("ARM Carmel, FP32:        kc = %d, mc = %d, nc = %d\n", kc, mc, nc);
+fprintf("----------------------------------------------------------------------\n")
 % ----------------------------------------------------------------------------
 % RISC-V, FP32
 % ISA 
-printf("----------------------------------------------------------------------\n")
+fprintf("----------------------------------------------------------------------\n")
 clear
-mr=512; nr=512;
+mr=4; nr=4;
 Sdata=4;
-printf("\tkernel %dx%d \n", mr, nr);
-printf("----------------------------------------------------------------------\n")
+fprintf("\tkernel %dx%d \n", mr, nr);
+fprintf("----------------------------------------------------------------------\n")
 %SL1=1024*1024; WL1=8; NL1 = 2048 ; CL1 = 64; %SL1 / (WL1 * NL1);
-SL1=1024; WL1=8; NL1 = 2048 ; CL1 = SL1 / (WL1 * NL1);
+SL1=16; WL1=8; NL1 = 2048 ; CL1 = SL1 / (WL1 * NL1);
 kc = model_level(SL1, NL1, CL1, WL1, Sdata, mr, nr);
 %
 % Br in L1 --> kc x nr = kc x 8
@@ -199,5 +195,5 @@ nc = model_level(SL3, NL3, CL3, WL3, Sdata, mc, kc);
 
 % Bc en L3 --> mc x kc
 
-printf("RISC-V, FP32:        kc = %d, mc = %d, nc = %d\n", kc, mc, nc);
-printf("----------------------------------------------------------------------\n")
+fprintf("RISC-V, FP32:        kc = %d, mc = %d, nc = %d\n", kc, mc, nc);
+fprintf("----------------------------------------------------------------------\n")
