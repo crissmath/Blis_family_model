@@ -1,5 +1,5 @@
 function [PackBc, PackCc, UnpackCc, CopyCr, StreamA, StreamBc, StreamCr, ....
-          CrMemL1, CcMemL3, BcMemL2 ] = gemm_blis_C3B2A0( m, n, k, MC, NC, KC, MR, KR )
+          CrMemL1, CcMemL3, BcMemL2, time_C3B2A0] = gemm_blis_C3B2A0( m, n, k, MC, NC, KC, MR, KR )
 
   % Kilobyte
   KiB  = 2^10;
@@ -167,6 +167,9 @@ function [PackBc, PackCc, UnpackCc, CopyCr, StreamA, StreamBc, StreamCr, ....
   fprintf("---------------------------------------------------------\n")
   fprintf("Arithmetic:       %6.2e        %6.2e       %6.2e\n", TimeINT8Ops, INT8Ops, INT8Rate/Mega) 
   fprintf("\n");
-  fprintf("Total:            %6.2e        %6.2e       %6.2e\n", Time, INT8Ops, INT8Rateactual/Mega) 
+  fprintf("Total:            %6.2e        %6.2e       %6.2e\n", Time, INT8Ops, INT8Rateactual/Mega)
+
+time_C3B2A0 = [ TimePackBc, TimePackCc, TimeUnpackCc, TimeCopyCr, ...
+                TimeStreamA, TimeStreamBc, TimeStreamCr, TimeINT8Ops]; 
 %
 end

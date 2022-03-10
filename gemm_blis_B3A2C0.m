@@ -1,5 +1,5 @@
 function [PackBc, PackAc, CopyBr, StreamAc, StreamBr, StreamC, ...
-          BrMemL1, BcMemL3, AcMemL2 ] = gemm_blis_B3A2C0( m, n, k, MC, NC, KC, MR,NR )
+BrMemL1, BcMemL3, AcMemL2, B3A2C0_time] = gemm_blis_B3A2C0( m, n, k, MC, NC, KC, MR,NR)
 
   % Kilobyte
   KiB  = 2^10;
@@ -130,7 +130,7 @@ for jc=[0:NC:n-1]
   TimeCopyBr   =  DataSize * CopyBr   / (TRCopyBr   * MiB);
   TimeStreamAc =  DataSize * StreamAc / (TRStreamAc * MiB);
   TimeStreamBr =  DataSize * StreamBr / (TRStreamBr * MiB);
-  TimeStreamC =  DataSize * StreamC / (TRStreamC * MiB);
+  TimeStreamC  =  DataSize * StreamC / (TRStreamC * MiB);
 
   INT8R       = 7.57E+1;
   TimeINT8Ops = INT8Ops / INT8Rate;
@@ -157,7 +157,15 @@ for jc=[0:NC:n-1]
   fprintf("---------------------------------------------------------\n")
   fprintf("Arithmetic:       %6.2e        %6.2e       %6.2e\n", TimeINT8Ops, INT8Ops, INT8Rate/Mega) 
   fprintf("\n");
-  fprintf("Total:            %6.2e        %6.2e       %6.2e\n", Time, INT8Ops, INT8Rateactual/Mega) 
+  fprintf("Total:            %6.2e        %6.2e       %6.2e\n", Time, INT8Ops, INT8Rateactual/Mega)
+
+  %X = categorical({'Pack Bc', 'Pack Ac', 'Copy Br', 'Stream Ac', 'Stream Br', 'Stream C'}); 
+  %X = categorical({'B3A2C0'});
+  B3A2C0_time = [TimePackBc, TimePackAc, TimeCopyBr, TimeStreamAc, ...
+                 TimeStreamBr, TimeStreamAc, 0, TimeINT8Ops];
+
+  % time_bar = bar( X, B3A2C0_time, 'stacked');
+  % exportgraphics(gca, 'B3A2C0_t.pdf');
 %
 end
 
