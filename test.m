@@ -4,13 +4,13 @@
 % close all
 
 %% var_blis = 'B3C2A0';
-m = 1792;
-n = 1536;
+m = 1024;
+n = 1024;
 k = 1024;
 
 MR = 4;
-KR = 4;
-NR = 4;
+NR = 4; % 4,8,12,16,24 --> second dimension variation 
+KR = 4; %  4,8,12,16,24 --> first variation 
 
 %% elseif var_blis == 'B3A2C0'
     fprintf(" **** B3A2C0 ****\n");

@@ -1,11 +1,10 @@
 function [MC, NC, KC, Mem_L1, Mem_L2, Mem_L3, Mem_L1_use, Mem_L2_use, ...
      Mem_L3_use] = mem_model_gap8(variant, m, n, k, MR, NR, KR)
 
-     %variant = 'C3B2A0'; %'B3A2C0' ; %'B3C2A0';
+%variant = 'C3B2A0'; %'B3A2C0' ; %'B3C2A0';
 %m = 1792; 
 %n = 1536;
 %k = 1024;
-
 %MR = 4;
 %NR = 4;
 %KR = 4;
