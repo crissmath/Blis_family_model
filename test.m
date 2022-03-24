@@ -18,7 +18,6 @@ k = 1024;
 % MR = 4;
 % NR = 4; %  4,8,12,16,24 --> second dimension variation 
 % KR = 4; %  4,8,12,16,24 --> first variation 
-clear all
 for i=4:4:(n_kernel*4)
     for j=4:4:(n_kernel*4)
 
