@@ -6,7 +6,7 @@
 %var_blis  = 'B3A2C0';
 clear
 
-n_kernel  = 2;  % # kernels
+n_kernel  = 4;  % # kernels
 graphs    = 1;  % generate graphs
 save_data = 1;  % save data
 
