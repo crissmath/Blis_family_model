@@ -4,9 +4,12 @@
 %
 % Config Parameters
 %var_blis  = 'B3A2C0';
-visual    = 0;  % generate graphs
+clear
+
+n_kernel  = 2;  % # kernels
+graphs    = 1;  % generate graphs
 save_data = 1;  % save data
-n_kernel  = 4;  % # kernels
+
 %
 % Matrix size 
 m = 1792;
@@ -81,27 +84,6 @@ for m = 4:4:(n_kernel*4)
             l = l+1;
             kernel_name(l,:) = {[num2str(m),'x',num2str(n),'x',num2str(k)]};
             
-
-            if visual == 1
-                X = categorical({'B3A2C0', 'B3C2A0', 'C3B2A0'});
-                X = reordercats(X,{'B3A2C0', 'B3C2A0', 'C3B2A0'});
-
-                time_bar = bar( X, time_all, "stacked");
-                set(time_bar, {'DisplayName'}, {'PackBc', 'PackCc', 'UnpackCc', 'CopyBr/CopyCr', ...
-                                            'StreamA/Ac','StreamBr/Bc','StreamC/Cc/Cr', 'Arithmetic'}');
-                %Color configuration
-                time_bar(1).FaceColor = [0 0.4470 0.7410];
-                time_bar(2).FaceColor = [0.8500 0.3250 0.0980];
-                time_bar(3).FaceColor = [0.9290 0.6940 0.1250];
-                time_bar(4).FaceColor = [0.4660 0.6740 0.1880];
-                time_bar(5).FaceColor = [0 0 0];
-                time_bar(6).FaceColor = [0.3010 0.7450 0.9330];
-                time_bar(7).FaceColor = [0.6350 0.0780 0.1840];
-                time_bar(8).FaceColor = [0.4940 0.1840 0.5560];
-                legend()
-                %exportgraphics(gca, 'time_all_stacked.pdf');
-            end
-
             if save_data == 1 
                 fname_all_time    = ['data/time_',num2str(MR),'x',num2str(NR),'x',num2str(KR),'.txt'];
                 fname_B3A2C0_time = 'data/B3A2C0/time_B3A2C0.txt';
@@ -116,5 +98,9 @@ for m = 4:4:(n_kernel*4)
             end
         end
     end
+    % Generate graphs
+      if graphs == 1
+        generate_graphs(kernel_name);
+      end
 %   
 end
