@@ -6,7 +6,7 @@
 %var_blis  = 'B3A2C0';
 visual    = 0;  % generate graphs
 save_data = 1;  % save data
-n_kernel  = 6;  % # kernels multiples of 4
+n_kernel  = 2;  % # kernels
 %
 % Matrix size 
 m = 1792;
@@ -17,10 +17,25 @@ k = 1024;
 % micro-panels size 
 % MR = 4;
 % NR = 4; %  4,8,12,16,24 --> second dimension variation 
-% KR = 4; %  4,8,12,16,24 --> first variation 
-for m=4:4:(n_kernel*4)
-    for n=4:4:(n_kernel*4)
-        for k=4:4:(n_kernel*4)
+% KR = 4; %  4,8,12,16,24 --> first variation
+%kernel_name = zeros(4*n_kernel, 3);
+%size(kernel_name)
+l = 0;
+
+if(save_data == 1)
+    %delete the last generate data
+    [status, cmdout] = system(['find . -type f -name',' *.txt',' -delete']);
+    if(status == 0)
+        fprintf(" data has been cleaned...\n");
+    else 
+        fprintf(" ERROR:\n");
+    end
+end
+
+
+for m = 4:4:(n_kernel*4)
+    for n = 4:4:(n_kernel*4)
+        for k = 4:4:(n_kernel*4)
 
             MR = m;
             NR = n;
@@ -61,6 +76,10 @@ for m=4:4:(n_kernel*4)
                         time_B3C2A0;
                         time_C3B2A0];
 
+            % kernels 
+            l = l+1;
+            kernel_name(l,:) = [num2str(m),'x',num2str(n),'x',num2str(k)];
+
             if visual == 1
                 X = categorical({'B3A2C0', 'B3C2A0', 'C3B2A0'});
                 X = reordercats(X,{'B3A2C0', 'B3C2A0', 'C3B2A0'});
@@ -95,4 +114,5 @@ for m=4:4:(n_kernel*4)
             end
         end
     end
+%   
 end
