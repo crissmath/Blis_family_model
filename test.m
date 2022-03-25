@@ -6,7 +6,7 @@
 %var_blis  = 'B3A2C0';
 clear
 
-n_kernel  = 4;  % # kernels
+n_kernel  = 1;  % # kernels
 graphs    = 1;  % generate graphs
 save_data = 1;  % save data
 
@@ -36,13 +36,13 @@ if(save_data == 1)
 end
 
 
-for m = 4:4:(n_kernel*4)
-    for n = 4:4:(n_kernel*4)
-        for k = 4:4:(n_kernel*4)
+for mm = 4:4:(n_kernel*4)
+    for nn = 4:4:(n_kernel*4)
+        for kk = 4:4:(n_kernel*4)
 
-            MR = m;
-            NR = n;
-            KR = k; 
+            MR = mm;
+            NR = nn;
+            KR = kk; 
             fprintf("===============================================================\n");
             fprintf("                   MR=%d, NR=%d KR=%d                          \n",MR, NR, KR);
             fprintf("===============================================================\n");
@@ -98,9 +98,9 @@ for m = 4:4:(n_kernel*4)
             end
         end
     end
+end
+
     % Generate graphs
-      if graphs == 1
-        generate_graphs(kernel_name);
-      end
-%   
+if graphs == 1
+   generate_graphs(kernel_name);
 end
