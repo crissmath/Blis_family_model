@@ -6,7 +6,7 @@
 %var_blis  = 'B3A2C0';
 clear
 
-n_kernel  = 5;  % # kernels
+n_kernel  = 2;  % # kernels
 graphs    = 1;  % generate graphs
 save_data = 1;  % save data
 
@@ -91,10 +91,13 @@ for mm = 4:4:(n_kernel*4)
                 fname_C3B2A0_time = 'data/C3B2A0/time_C3B2A0.txt';
                 
                 dlmwrite(fname_all_time,    time_all);
-                dlmwrite(fname_B3A2C0_time, time_B3A2C0, '-append');
-                dlmwrite(fname_B3C2A0_time, time_B3C2A0, '-append');
-                dlmwrite(fname_C3B2A0_time, time_C3B2A0, '-append');
-
+                if( MR == 4 && KR == 4)
+                    dlmwrite(fname_B3A2C0_time, time_B3A2C0, '-append');
+                end
+                if ( MR == 4 && NR == 4)
+                    dlmwrite(fname_B3C2A0_time, time_B3C2A0, '-append');
+                    dlmwrite(fname_C3B2A0_time, time_C3B2A0, '-append');
+                end
             end
         end
     end
