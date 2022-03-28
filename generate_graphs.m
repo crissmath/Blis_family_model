@@ -54,5 +54,5 @@ function generate_graphs(kernel_name)
                             time_C3B20_variant(8).FaceColor = [0.4940 0.1840 0.5560];
                             %legend()
                             title('C3B2A0')
-    %exportgraphics(f, 'time_all_kernel.pdf');
+    exportgraphics(f, 'time_all_kernel.pdf');
 end

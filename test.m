@@ -6,7 +6,7 @@
 %var_blis  = 'B3A2C0';
 clear
 
-n_kernel  = 1;  % # kernels
+n_kernel  = 5;  % # kernels
 graphs    = 1;  % generate graphs
 save_data = 1;  % save data
 
@@ -82,7 +82,7 @@ for mm = 4:4:(n_kernel*4)
             % kernels 
             
             l = l+1;
-            kernel_name(l,:) = {[num2str(m),'x',num2str(n),'x',num2str(k)]};
+            kernel_name(l,:) = {[num2str(mm),'x',num2str(nn),'x',num2str(kk)]};
             
             if save_data == 1 
                 fname_all_time    = ['data/time_',num2str(MR),'x',num2str(NR),'x',num2str(KR),'.txt'];
