@@ -1,5 +1,5 @@
 % this function load data for model and create graphs
-function generate_graphs(kernel_name)
+function generate_graphs(kernel_name_B3A2C0, kernel_name_B3C2A0)
 
     % Load data 
     data_B3A2C0 = readmatrix('data/B3A2C0/time_B3A2C0.txt');
@@ -7,16 +7,21 @@ function generate_graphs(kernel_name)
     data_C3B2A0 = readmatrix('data/C3B2A0/time_C3B2A0.txt');
 
     % plot data 
-    %kr_names = kernel_name;
-    %X = categorical(kr_names');
-    %X = reordercats(X,kr_names');
+    var1_names = kernel_name_B3A2C0;
+    X = categorical(var1_names');
+    X = reordercats(X,var1_names');
+
+    var2_names = kernel_name_B3C2A0;
+    X1 = categorical(var2_names');
+    X1 = reordercats(X1,var2_names');
+
 
     disp_name =  {'PackBc', 'PackCc', 'UnpackCc', 'CopyBr/CopyCr', ...
     'StreamA/Ac','StreamBr/Bc','StreamC/Cc/Cr', 'Arithmetic'}';
 
     f = figure;
     subplot(3,1,1)
-    time_B3A2C0_variant = bar( data_B3A2C0, "stacked");
+    time_B3A2C0_variant = bar( X, data_B3A2C0, "stacked");
     set(time_B3A2C0_variant, {'DisplayName'}, disp_name);
                             time_B3A2C0_variant(1).FaceColor = [0 0.4470 0.7410];
                             time_B3A2C0_variant(2).FaceColor = [0.8500 0.3250 0.0980];
@@ -29,7 +34,7 @@ function generate_graphs(kernel_name)
                             %legend()
                             title('B3A2C0')
     subplot(3,1,2)
-    time_B3C2A0_variant = bar( data_B3C2A0, "stacked");
+    time_B3C2A0_variant = bar( X1, data_B3C2A0, "stacked");
     set(time_B3C2A0_variant, {'DisplayName'}, disp_name);
                             time_B3C2A0_variant(1).FaceColor = [0 0.4470 0.7410];
                             time_B3C2A0_variant(2).FaceColor = [0.8500 0.3250 0.0980];
@@ -42,7 +47,7 @@ function generate_graphs(kernel_name)
                             %legend()
                             title('B3C2A0')
     subplot(3,1,3)
-    time_C3B2A0_variant = bar( data_C3B2A0, "stacked");
+    time_C3B2A0_variant = bar( X1, data_C3B2A0, "stacked");
     set(time_C3B2A0_variant, {'DisplayName'}, disp_name);
                             time_C3B20_variant(1).FaceColor = [0 0.4470 0.7410];
                             time_C3B20_variant(2).FaceColor = [0.8500 0.3250 0.0980];
