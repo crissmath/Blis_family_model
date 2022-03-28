@@ -1,3 +1,5 @@
+#files output 
+*.txt
 # Prerequisites
 *.d
 
