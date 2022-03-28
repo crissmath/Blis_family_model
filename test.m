@@ -4,16 +4,16 @@
 %
 % Config Parameters
 %var_blis  = 'B3A2C0';
-clear
+clear all
 
-n_kernel  = 2;  % # kernels
+n_kernel  = 6;  % # kernels
 graphs    = 1;  % generate graphs
 save_data = 1;  % save data
 
 %
 % Matrix size 
-m = 1792;
-n = 1536;
+m = 1024;
+n = 1024;
 k = 1024;
 
 %
@@ -84,7 +84,7 @@ for mm = 4:4:(n_kernel*4)
             % kernels 
             
             l = l+1;
-            kernel_name(l,:) = {[num2str(mm),'x',num2str(nn),'x',num2str(kk)]}
+            kernel_name(l,:) = {[num2str(mm),'x',num2str(nn),'x',num2str(kk)]};
             
             if save_data == 1 
                 fname_all_time    = ['data/time_',num2str(MR),'x',num2str(NR),'x',num2str(KR),'.txt'];
@@ -93,16 +93,16 @@ for mm = 4:4:(n_kernel*4)
                 fname_C3B2A0_time = 'data/C3B2A0/time_C3B2A0.txt';
                 
                 dlmwrite(fname_all_time,    time_all);
-                if( MR == 4 && KR == 4)
+                if( KR == 4 )
                     l1 = l1 + 1;
                     kernel_name_B3A2C0(l1,:) = {[num2str(mm),'x',num2str(nn),'x',num2str(kk)]};
-                    dlmwrite(fname_B3A2C0_time, time_B3A2C0, '-append');
+                    dlmwrite(fname_B3A2C0_time, round(time_B3A2C0), '-append');
                 end
-                if ( MR == 4 && NR == 4)
+                if ( NR == 4 )
                     l2 = l2 + 1;
                     kernel_name_B3C2A0(l2,:) = {[num2str(mm),'x',num2str(nn),'x',num2str(kk)]};
-                    dlmwrite(fname_B3C2A0_time, time_B3C2A0, '-append');
-                    dlmwrite(fname_C3B2A0_time, time_C3B2A0, '-append');
+                    dlmwrite(fname_B3C2A0_time, round(time_B3C2A0), '-append');
+                    dlmwrite(fname_C3B2A0_time, round(time_C3B2A0), '-append');
                 end
             end
         end
