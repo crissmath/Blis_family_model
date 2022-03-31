@@ -73,13 +73,14 @@ function generate_graphs(kernel_name_B3A2C0, kernel_name_B3C2A0)
                             time_B3C2A0_variant(6).FaceColor = [0.3010 0.7450 0.9330];
                             time_B3C2A0_variant(7).FaceColor = [0.6350 0.0780 0.1840];
                             time_B3C2A0_variant(8).FaceColor = [0.4940 0.1840 0.5560];
-                            legend()
+                            leg = legend();
+                            set(leg, 'FontSize', 8)
                             title('B3C2A0')
                             ylim([0 120])
                             text(1:length(total_time_B3C2A0), total_time_B3C2A0, ...
                                  num2str(total_time_B3C2A0),'vert','bottom','horiz','center');
-                            xlabel('${m_r \times n_r \times k_r}$','interpreter','latex', ...
-                                    'FontWeight','bold', 'FontSize', 15)
+                            xlabel('Microkernel dimensions${ (m_r \times n_r \times k_r)}$','interpreter','latex', ...
+                                   'FontWeight','bold', 'FontSize', 15)
                             ylabel('$Time(s)$','interpreter','latex', ...
                             'FontWeight','bold', 'FontSize', 15)  
     f_2 = figure
@@ -94,12 +95,13 @@ function generate_graphs(kernel_name_B3A2C0, kernel_name_B3C2A0)
                             time_C3B2A0_variant(6).FaceColor = [0.3010 0.7450 0.9330];
                             time_C3B2A0_variant(7).FaceColor = [0.6350 0.0780 0.1840];
                             time_C3B2A0_variant(8).FaceColor = [0.4940 0.1840 0.5560];
-                            legend()
+                            leg = legend();
+                            set(leg, 'FontSize', 8)
                             title('C3B2A0')
                             ylim([0 120])
                             text(1:length(total_time_C3B2A0), total_time_C3B2A0, ...
                                  num2str(total_time_C3B2A0),'vert','bottom','horiz','center');
-                            xlabel('${m_r \times n_r \times k_r}$','interpreter','latex', ...
+                                 xlabel('Microkernel dimensions${ (m_r \times n_r \times k_r)}$','interpreter','latex', ...
                                  'FontWeight','bold', 'FontSize', 15)
                             ylabel('$Time(s)$','interpreter','latex', ...
                             'FontWeight','bold', 'FontSize', 15) 
@@ -118,13 +120,13 @@ function generate_graphs(kernel_name_B3A2C0, kernel_name_B3C2A0)
                             best_time_variants(6).FaceColor = [0.3010 0.7450 0.9330];
                             best_time_variants(7).FaceColor = [0.6350 0.0780 0.1840];
                             best_time_variants(8).FaceColor = [0.4940 0.1840 0.5560];
-                            leg = legend()
+                            leg = legend();
                             set(leg, 'FontSize', 8)
                             title('Best kernels')
                             ylim([0 60])
                             text(1:length(total_time_best), total_time_best, ...
                                  num2str(total_time_best),'vert','bottom','horiz','center');
-                            xlabel('${m_r \times n_r \times k_r}$','interpreter','latex', ...
+                            xlabel('Microkernel dimensions${ (m_r \times n_r \times k_r)}$','interpreter','latex', ...
                                     'FontWeight','bold', 'FontSize', 15)
                             ylabel('$Time(s)$','interpreter','latex', ...
                             'FontWeight','bold', 'FontSize', 15) 
