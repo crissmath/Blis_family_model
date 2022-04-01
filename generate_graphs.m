@@ -136,7 +136,13 @@ function generate_graphs(kernel_name_B3A2C0, kernel_name_B3C2A0)
         saveas(f,   'time_all_B3A2C0.pdf');
         saveas(f_1, 'time_all_B3C2A0.pdf');
         saveas(f_2, 'time_all_C3B2A0.pdf');
-        saveas(f_3, 'time_all_best.pdf');
+        
+        %saveas(f_3, 'time_all_best.pdf');
+        surf(peaks)
+        f_3.PaperPositionMode = 'manual';
+        orient(f_3,'landscape')
+        print(f_3,'time_all_best.pdf','-dpdf')
+
     else
         exportgraphics(f,   'time_all_B3A2C0.pdf');
         exportgraphics(f_1, 'time_all_B3C2A0.pdf');
