@@ -53,15 +53,16 @@ function generate_graphs(kernel_name_B3A2C0, kernel_name_B3C2A0)
                             legend()
                             title('B3A2C0')
                             ylim([0 120])
-                            text(1:length(total_time_B3A2C0), total_time_B3A2C0, ...
-                                 num2str(total_time_B3A2C0),'vert','bottom','horiz','center');
-                            xlabel('${m_r \times n_r \times k_r}$','interpreter','latex', ...
-                                 'FontWeight','bold', 'FontSize', 15)
+                            text(1:length(total_time_B3A2C0), total_time_B3A2C0, num2str(total_time_B3A2C0), ...
+                            'Fontsize', 5,'vert','bottom','horiz','center');
+                            
+                            xlabel('Microkernel dimensions${ (m_r \times n_r \times k_r)}$','interpreter','latex', ...
+                            'FontWeight','bold', 'FontSize', 15)
                             ylabel('$Time(s)$','interpreter','latex', ...
                             'FontWeight','bold', 'FontSize', 15)  
 
      
-    f_1 = figure
+    f_1 = figure;
     %subplot(3,1,2)
     time_B3C2A0_variant = bar( X1, data_B3C2A0, "stacked");
     set(time_B3C2A0_variant, {'DisplayName'}, disp_name);
@@ -77,13 +78,14 @@ function generate_graphs(kernel_name_B3A2C0, kernel_name_B3C2A0)
                             set(leg, 'FontSize', 8)
                             title('B3C2A0')
                             ylim([0 120])
-                            text(1:length(total_time_B3C2A0), total_time_B3C2A0, ...
-                                 num2str(total_time_B3C2A0),'vert','bottom','horiz','center');
+                            text(1:length(total_time_B3C2A0), total_time_B3C2A0, num2str(total_time_B3C2A0), ...
+                            'Fontsize', 5,'vert','bottom','horiz','center');
+                            
                             xlabel('Microkernel dimensions${ (m_r \times n_r \times k_r)}$','interpreter','latex', ...
                                    'FontWeight','bold', 'FontSize', 15)
                             ylabel('$Time(s)$','interpreter','latex', ...
                             'FontWeight','bold', 'FontSize', 15)  
-    f_2 = figure
+    f_2 = figure;
     %subplot(3,1,3)
     time_C3B2A0_variant = bar( X1, data_C3B2A0, "stacked");
     set(time_C3B2A0_variant, {'DisplayName'}, disp_name);
@@ -99,12 +101,12 @@ function generate_graphs(kernel_name_B3A2C0, kernel_name_B3C2A0)
                             set(leg, 'FontSize', 8)
                             title('C3B2A0')
                             ylim([0 120])
-                            text(1:length(total_time_C3B2A0), total_time_C3B2A0, ...
-                                 num2str(total_time_C3B2A0),'vert','bottom','horiz','center');
-                                 xlabel('Microkernel dimensions${ (m_r \times n_r \times k_r)}$','interpreter','latex', ...
-                                 'FontWeight','bold', 'FontSize', 15)
-                            ylabel('$Time(s)$','interpreter','latex', ...
-                            'FontWeight','bold', 'FontSize', 15) 
+                            text(1:length(total_time_C3B2A0), total_time_C3B2A0, num2str(total_time_C3B2A0), ...
+                            'Fontsize', 5,'vert','bottom','horiz','center');
+
+                            xlabel('Microkernel dimensions${ (m_r \times n_r \times k_r)}$', ...
+                                   'interpreter','latex', 'FontWeight','bold', 'FontSize', 15);
+                            ylabel('$Time(s)$','interpreter','latex','FontWeight','bold', 'FontSize', 15); 
     
 
     f_3 = figure;
@@ -126,6 +128,7 @@ function generate_graphs(kernel_name_B3A2C0, kernel_name_B3C2A0)
                             ylim([0 60])
                             text(1:length(total_time_best), total_time_best, ...
                                  num2str(total_time_best),'vert','bottom','horiz','center');
+
                             xlabel('Microkernel dimensions${ (m_r \times n_r \times k_r)}$','interpreter','latex', ...
                                     'FontWeight','bold', 'FontSize', 15)
                             ylabel('$Time(s)$','interpreter','latex', ...
@@ -133,12 +136,22 @@ function generate_graphs(kernel_name_B3A2C0, kernel_name_B3C2A0)
 
     v = ver('MATLAB');
     if (v.Release == '(R2019b)')
-        saveas(f,   'time_all_B3A2C0.pdf');
-        saveas(f_1, 'time_all_B3C2A0.pdf');
-        saveas(f_2, 'time_all_C3B2A0.pdf');
-        
+        %saveas(f,   'time_all_B3A2C0.pdf');
+        f.PaperPositionMode = 'manual';
+        orient(f,'landscape')
+        print(f,'time_all_B3A2C0.pdf','-dpdf')
+
+        %saveas(f_1, 'time_all_B3C2A0.pdf');
+        f_1.PaperPositionMode = 'manual';
+        orient(f_1,'landscape')
+        print(f_1,'time_all_B3C2A0.pdf','-dpdf')
+
+        %saveas(f_2, 'time_all_C3B2A0.pdf');
+        f_2.PaperPositionMode = 'manual';
+        orient(f_2,'landscape')
+        print(f_2,'time_all_C3B2A0.pdf','-dpdf')
+
         %saveas(f_3, 'time_all_best.pdf');
-        surf(peaks)
         f_3.PaperPositionMode = 'manual';
         orient(f_3,'landscape')
         print(f_3,'time_all_best.pdf','-dpdf')
