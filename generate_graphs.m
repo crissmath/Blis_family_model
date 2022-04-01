@@ -1,5 +1,5 @@
 % this function load data for model and create graphs
-function generate_graphs(kernel_name_B3A2C0, kernel_name_B3C2A0)
+function generate_graphs(m, n, k, kernel_name_B3A2C0, kernel_name_B3C2A0)
 
     % Load data 
     data_B3A2C0 = readmatrix('data/B3A2C0/time_B3A2C0.txt');
@@ -35,12 +35,14 @@ function generate_graphs(kernel_name_B3A2C0, kernel_name_B3C2A0)
     X2 = reordercats(X2,var3_names');
 
 
+    lw   = 0.0001;
+    Titles = ['Time kernel perfomance of GEMM with $m=$',num2str(m),'$n=$',num2str(n),'$k=$',num2str(k)]; 
     disp_name =  {'PackBc', 'PackCc', 'UnpackCc', 'CopyBr/CopyCr', ...
                   'StreamA/Ac','StreamBr/Bc','StreamC/Cc/Cr', 'Arithmetic'}';
 
-    f = figure;
+    f = figure('Units','centimeters', 'Position', [20,20,35,10]);
     %subplot(3,1,1)
-    time_B3A2C0_variant = bar( X, data_B3A2C0, "stacked");
+    time_B3A2C0_variant = bar( X, data_B3A2C0, "stacked", 'LineWidth', lw);
     set(time_B3A2C0_variant, {'DisplayName'}, disp_name);
                             time_B3A2C0_variant(1).FaceColor = [0 0.4470 0.7410];
                             time_B3A2C0_variant(2).FaceColor = [0.8500 0.3250 0.0980];
@@ -51,7 +53,7 @@ function generate_graphs(kernel_name_B3A2C0, kernel_name_B3C2A0)
                             time_B3A2C0_variant(7).FaceColor = [0.6350 0.0780 0.1840];
                             time_B3A2C0_variant(8).FaceColor = [0.4940 0.1840 0.5560];
                             legend()
-                            title('B3A2C0')
+                            title(Titles)
                             ylim([0 120])
                             text(1:length(total_time_B3A2C0), total_time_B3A2C0, num2str(total_time_B3A2C0), ...
                             'Fontsize', 5,'vert','bottom','horiz','center');
@@ -62,9 +64,9 @@ function generate_graphs(kernel_name_B3A2C0, kernel_name_B3C2A0)
                             'FontWeight','bold', 'FontSize', 15)  
 
      
-    f_1 = figure;
+    f_1 = figure('Units','centimeters', 'Position', [20,20,35,10]);;
     %subplot(3,1,2)
-    time_B3C2A0_variant = bar( X1, data_B3C2A0, "stacked");
+    time_B3C2A0_variant = bar( X1, data_B3C2A0, "stacked", 'LineWidth', lw);
     set(time_B3C2A0_variant, {'DisplayName'}, disp_name);
                             time_B3C2A0_variant(1).FaceColor = [0 0.4470 0.7410];
                             time_B3C2A0_variant(2).FaceColor = [0.8500 0.3250 0.0980];
@@ -76,7 +78,7 @@ function generate_graphs(kernel_name_B3A2C0, kernel_name_B3C2A0)
                             time_B3C2A0_variant(8).FaceColor = [0.4940 0.1840 0.5560];
                             leg = legend();
                             set(leg, 'FontSize', 8)
-                            title('B3C2A0')
+                            title(Titles)
                             ylim([0 120])
                             text(1:length(total_time_B3C2A0), total_time_B3C2A0, num2str(total_time_B3C2A0), ...
                             'Fontsize', 5,'vert','bottom','horiz','center');
@@ -85,9 +87,9 @@ function generate_graphs(kernel_name_B3A2C0, kernel_name_B3C2A0)
                                    'FontWeight','bold', 'FontSize', 15)
                             ylabel('$Time(s)$','interpreter','latex', ...
                             'FontWeight','bold', 'FontSize', 15)  
-    f_2 = figure;
+    f_2 = figure('Units','centimeters', 'Position', [20,20,35,10]);;
     %subplot(3,1,3)
-    time_C3B2A0_variant = bar( X1, data_C3B2A0, "stacked");
+    time_C3B2A0_variant = bar( X1, data_C3B2A0, "stacked", 'LineWidth', lw);
     set(time_C3B2A0_variant, {'DisplayName'}, disp_name);
                             time_C3B2A0_variant(1).FaceColor = [0 0.4470 0.7410];
                             time_C3B2A0_variant(2).FaceColor = [0.8500 0.3250 0.0980];
@@ -99,7 +101,7 @@ function generate_graphs(kernel_name_B3A2C0, kernel_name_B3C2A0)
                             time_C3B2A0_variant(8).FaceColor = [0.4940 0.1840 0.5560];
                             leg = legend();
                             set(leg, 'FontSize', 8)
-                            title('C3B2A0')
+                            title(Titles)
                             ylim([0 120])
                             text(1:length(total_time_C3B2A0), total_time_C3B2A0, num2str(total_time_C3B2A0), ...
                             'Fontsize', 5,'vert','bottom','horiz','center');
@@ -124,7 +126,7 @@ function generate_graphs(kernel_name_B3A2C0, kernel_name_B3C2A0)
                             best_time_variants(8).FaceColor = [0.4940 0.1840 0.5560];
                             leg = legend();
                             set(leg, 'FontSize', 8)
-                            title('Best kernels')
+                            title(Titles)
                             ylim([0 60])
                             text(1:length(total_time_best), total_time_best, ...
                                  num2str(total_time_best),'vert','bottom','horiz','center');
@@ -137,23 +139,27 @@ function generate_graphs(kernel_name_B3A2C0, kernel_name_B3C2A0)
     v = ver('MATLAB');
     if (v.Release == '(R2019b)')
         %saveas(f,   'time_all_B3A2C0.pdf');
-        f.PaperPositionMode = 'manual';
-        orient(f,'landscape')
-        print(f,'time_all_B3A2C0.pdf','-dpdf')
+        f.Units       = 'centimeters';
+        f.PaperUnits  = 'centimeters';
+        f.PaperSize   = f.Position(3:4);
+        print(f,'time_all_B3A2C0.pdf', '-dpdf');
 
         %saveas(f_1, 'time_all_B3C2A0.pdf');
-        f_1.PaperPositionMode = 'manual';
-        orient(f_1,'landscape')
+        f_1.Units       = 'centimeters';
+        f_1.PaperUnits  = 'centimeters';
+        f_1.PaperSize   = f_1.Position(3:4);
         print(f_1,'time_all_B3C2A0.pdf','-dpdf')
 
         %saveas(f_2, 'time_all_C3B2A0.pdf');
-        f_2.PaperPositionMode = 'manual';
-        orient(f_2,'landscape')
+        f_2.Units       = 'centimeters';
+        f_2.PaperUnits  = 'centimeters';
+        f_2.PaperSize   = f_2.Position(3:4);
         print(f_2,'time_all_C3B2A0.pdf','-dpdf')
 
         %saveas(f_3, 'time_all_best.pdf');
-        f_3.PaperPositionMode = 'manual';
-        orient(f_3,'landscape')
+        %f_3.Units       = 'centimeters';
+        %f_3.PaperUnits  = 'centimeters';
+        %f_3.PaperSize   = f_3.Position(3:4);
         print(f_3,'time_all_best.pdf','-dpdf')
 
     else

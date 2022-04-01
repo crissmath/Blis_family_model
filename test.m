@@ -111,5 +111,5 @@ end
 
     % Generate graphs
 if graphs == 1
-   generate_graphs(kernel_name_B3A2C0, kernel_name_B3C2A0);
+   generate_graphs(m, n, k, kernel_name_B3A2C0, kernel_name_B3C2A0);
 end
