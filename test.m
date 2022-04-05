@@ -6,15 +6,15 @@
 %var_blis  = 'B3A2C0';
 clear all
 
-n_kernel  = 8;  % # kernels
-graphs    = 1;  % generate graphs
+n_kernel  = 4;  % # kernels
+graphs    = 'gnuplot';  % generate graphs   Matlab/gnuplot
 save_data = 1;  % save data
 
 %
 % Matrix size 
 m = 1024;
-n = 1024;
-k = 1024;
+n = 49;
+k = 4608;
 
 %
 % micro-panels size 
@@ -80,36 +80,59 @@ for mm = 4:4:(n_kernel*4)
             time_all =[ time_B3A2C0;
                         time_B3C2A0;
                         time_C3B2A0];
-
-            % kernels 
             
+
+            % generate names 
             l = l+1;
             kernel_name(l,:) = {[num2str(mm),'x',num2str(nn),'x',num2str(kk)]};
+            label_names =   ["PackBc", "PackCc", "UnpackCc", "CopyBr/CopyCr","StreamA/Ac", ...
+                             "StreamBr/Bc","StreamC/Cc/Cr", "Arithmetic"];
             
             if save_data == 1 
                 fname_all_time    = ['data/time_',num2str(MR),'x',num2str(NR),'x',num2str(KR),'.txt'];
-                fname_B3A2C0_time = 'data/B3A2C0/time_B3A2C0.txt';
-                fname_B3C2A0_time = 'data/B3C2A0/time_B3C2A0.txt';
-                fname_C3B2A0_time = 'data/C3B2A0/time_C3B2A0.txt';
-                
-                dlmwrite(fname_all_time,    time_all);
+                %dlmwrite(fname_all_time,    time_all);
                 if( KR == 4 )
                     l1 = l1 + 1;
                     kernel_name_B3A2C0(l1,:) = {[num2str(mm),'x',num2str(nn),'x',num2str(kk)]};
-                    dlmwrite(fname_B3A2C0_time, round(time_B3A2C0), '-append');
+                    time_B3A2C0_t(l1,:) = time_B3A2C0;
+                    %dlmwrite(fname_B3A2C0_time, (time_B3A2C0), '-append');
+
                 end
                 if ( NR == 4 )
                     l2 = l2 + 1;
                     kernel_name_B3C2A0(l2,:) = {[num2str(mm),'x',num2str(nn),'x',num2str(kk)]};
-                    dlmwrite(fname_B3C2A0_time, round(time_B3C2A0), '-append');
-                    dlmwrite(fname_C3B2A0_time, round(time_C3B2A0), '-append');
+                    time_B3C2A0_t(l2,:) = time_B3C2A0;
+                    time_C3B2A0_t(l2,:) = time_C3B2A0;
+                    %dlmwrite(fname_B3C2A0_time, (time_B3C2A0), '-append');
+                    %dlmwrite(fname_C3B2A0_time, (time_C3B2A0), '-append');
                 end
             end
         end
     end
 end
 
-    % Generate graphs
-if graphs == 1
+%save data for export
+if save_data == 1
+
+    fname_B3A2C0_time = 'data/B3A2C0/time_B3A2C0.dat';
+    fname_B3C2A0_time = 'data/B3C2A0/time_B3C2A0.dat';
+    fname_C3B2A0_time = 'data/C3B2A0/time_C3B2A0.dat';
+
+    % save data gnuplot
+    fprintf(" B3A2C0\n"); 
+    data_B3A2C0 = array2table(time_B3A2C0_t, 'Rownames', kernel_name_B3A2C0,'VariableNames', label_names)
+    fprintf(" B3C2A0\n"); 
+    data_B3C2A0 = array2table(time_B3C2A0_t, 'Rownames', kernel_name_B3C2A0,'VariableNames', label_names)
+    fprintf(" C3B2A0\n"); 
+    data_C3B2A0 = array2table(time_C3B2A0_t, 'Rownames', kernel_name_B3C2A0,'VariableNames', label_names)
+
+    writetable(data_B3A2C0, fname_B3A2C0_time, 'WriteRowNames', true, 'Delimiter',' ') ;
+    writetable(data_B3C2A0, fname_B3C2A0_time, 'WriteRowNames', true, 'Delimiter',' ') ;
+    writetable(data_C3B2A0, fname_C3B2A0_time, 'WriteRowNames', true, 'Delimiter',' ') ;  
+end
+
+
+% Generate graphs this function is replace for gnuplot
+if graphs == 'matlab'
    generate_graphs(m, n, k, kernel_name_B3A2C0, kernel_name_B3C2A0);
 end
