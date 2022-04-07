@@ -6,14 +6,14 @@
 %var_blis  = 'B3A2C0';
 clear all
 
-n_kernel  = 4;  % # kernels
-graphs    = 'gnuplot';  % generate graphs   Matlab/gnuplot
-save_data = 1;  % save data
+n_kernel    = 6;  % # kernels
+g_graphs    = 1;  % generate graphs   Matlab/gnuplot
+save_data   = 1;  % save data
 
 %
-% Matrix size 
-m = 1024;
-n = 49;
+% Matrix size layer 14  mobilnet v1.
+m = 512;
+n = 196;
 k = 4608;
 
 %
@@ -93,14 +93,16 @@ for mm = 4:4:(n_kernel*4)
                 %dlmwrite(fname_all_time,    time_all);
                 if( KR == 4 )
                     l1 = l1 + 1;
-                    kernel_name_B3A2C0(l1,:) = {[num2str(mm),'x',num2str(nn),'x',num2str(kk)]};
+                    %kernel_name_B3A2C0(l1,:) = {[num2str(mm),'x',num2str(nn),'x',num2str(kk)]};
+                    kernel_name_B3A2C0(l1,:) = {[num2str(mm),'x',num2str(nn)]};
                     time_B3A2C0_t(l1,:) = time_B3A2C0;
                     %dlmwrite(fname_B3A2C0_time, (time_B3A2C0), '-append');
 
                 end
                 if ( NR == 4 )
                     l2 = l2 + 1;
-                    kernel_name_B3C2A0(l2,:) = {[num2str(mm),'x',num2str(nn),'x',num2str(kk)]};
+                    %kernel_name_B3C2A0(l2,:) = {[num2str(mm),'x',num2str(nn),'x',num2str(kk)]};
+                    kernel_name_B3C2A0(l2,:) = {[num2str(mm),'x',num2str(kk)]};
                     time_B3C2A0_t(l2,:) = time_B3C2A0;
                     time_C3B2A0_t(l2,:) = time_C3B2A0;
                     %dlmwrite(fname_B3C2A0_time, (time_B3C2A0), '-append');
@@ -114,16 +116,22 @@ end
 %save data for export
 if save_data == 1
 
-    fname_B3A2C0_time = 'data/B3A2C0/time_B3A2C0.dat';
-    fname_B3C2A0_time = 'data/B3C2A0/time_B3C2A0.dat';
-    fname_C3B2A0_time = 'data/C3B2A0/time_C3B2A0.dat';
+    fname_B3A2C0_time = 'data/plots/time_B3A2C0.dat';
+    fname_B3C2A0_time = 'data/plots/time_B3C2A0.dat';
+    fname_C3B2A0_time = 'data/plots/time_C3B2A0.dat';
 
     % save data gnuplot
-    fprintf(" B3A2C0\n"); 
+    fprintf(" ==============================\n"); 
+    fprintf("              B3A2C0           \n");
+    fprintf(" ==============================\n"); 
     data_B3A2C0 = array2table(time_B3A2C0_t, 'Rownames', kernel_name_B3A2C0,'VariableNames', label_names)
-    fprintf(" B3C2A0\n"); 
+    fprintf(" ==============================\n"); 
+    fprintf("             B3C2A0            \n"); 
+    fprintf(" ==============================\n"); 
     data_B3C2A0 = array2table(time_B3C2A0_t, 'Rownames', kernel_name_B3C2A0,'VariableNames', label_names)
-    fprintf(" C3B2A0\n"); 
+    fprintf(" ==============================\n"); 
+    fprintf("            C3B2A0             \n"); 
+    fprintf(" ==============================\n"); 
     data_C3B2A0 = array2table(time_C3B2A0_t, 'Rownames', kernel_name_B3C2A0,'VariableNames', label_names)
 
     writetable(data_B3A2C0, fname_B3A2C0_time, 'WriteRowNames', true, 'Delimiter',' ') ;
@@ -133,6 +141,18 @@ end
 
 
 % Generate graphs this function is replace for gnuplot
-if graphs == 'matlab'
-   generate_graphs(m, n, k, kernel_name_B3A2C0, kernel_name_B3C2A0);
+if g_graphs == 'matlab_'
+    generate_graphs(m, n, k, kernel_name_B3A2C0, kernel_name_B3C2A0);
+end
+if g_graphs == 1
+    %[status, cmdout] = system('gnuplot ~/Blis_family_model/data/plots/plots.gp')
+    %[status, cmdout] = system('epstopdf data/plots/time_all_B3A2C0.eps && epstopdf data/plots/time_all_B3C2A0.eps && epstopdf data/plots/time_all_C3B2A0.eps');
+    [status, cmdout] = system('~/Blis_family_model/./plot.sh');
+    cmdout
+    if(status == 0)
+        fprintf("gnuplot generate graphs in : /data/plot \n");
+    else
+        fprintf("Error...\n");
+
+    end
 end

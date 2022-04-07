@@ -1,6 +1,4 @@
-set terminal postscript color font "Helvetica, 10" enhanced 
-
-set xlabel font ",15" "Microkernel dimensions (m_r x k_r)"
+set terminal postscript color font "Helvetica, 7" enhanced 
 set ytics
 set grid ytics
 set style data histograms
@@ -22,7 +20,8 @@ labels = "'None' \
          'Stream C_c' \
          'Arithm'"
 
-set output 'time_all_B3A2C0.eps'
+set xlabel font ",15" "Microkernel dimensions (m_r x n_r)"
+set output '~/Blis_family_model/data/plots/time_all_B3A2C0.eps'
 plot "~/Blis_family_model/data/plots/time_B3A2C0.dat"  using 9 t word(labels, 9),  \
                                '' using 8 t word(labels, 8),  \
                                '' using 7 t word(labels, 7),\
@@ -32,8 +31,8 @@ plot "~/Blis_family_model/data/plots/time_B3A2C0.dat"  using 9 t word(labels, 9)
                                '' using 3 t word(labels, 3),\
                                '' using 2:xtic(1) t word(labels, 2)\
 
-
-set output 'time_all_B3C2A0.eps'
+set xlabel font ",15" "Microkernel dimensions (m_r x k_r)"
+set output '~/Blis_family_model/data/plots/time_all_B3C2A0.eps'
 plot "~/Blis_family_model/data/plots/time_B3C2A0.dat"   using 9 t word(labels, 9),  \
                                 '' using 8 t word(labels, 8),  \
                                 '' using 7 t word(labels, 7),\
@@ -43,7 +42,7 @@ plot "~/Blis_family_model/data/plots/time_B3C2A0.dat"   using 9 t word(labels, 9
                                 '' using 3 t word(labels, 3),\
                                 '' using 2:xtic(1) t word(labels, 2)\
 
-set output 'time_all_C3B2A0.eps'
+set output '~/Blis_family_model/data/plots/time_all_C3B2A0.eps'
 plot "~/Blis_family_model/data/plots/time_C3B2A0.dat"   using 9 t word(labels, 9),  \
                                 '' using 8 t word(labels, 8),  \
                                 '' using 7 t word(labels, 7),\

@@ -37,7 +37,7 @@ BrMemL1, BcMemL3, AcMemL2, B3A2C0_time] = gemm_blis_B3A2C0( m, n, k, MC, NC, KC,
   TRCopyBr   = L3toL1;                % L3 --> L1         
   TRStreamAc = L2toReg;               % L2 --> Reg        (Load Ar)
   TRStreamBr = L1toReg;               % L1 --> Reg        (Load Bc)
-  TRStreamC = L3toReg;               % L2 --> Reg        (Load && write Cc)
+  TRStreamC  = L3toReg;                % L2 --> Reg        (Load && write Cc)
   %
   % Experimental Ops/s (in INT8 MOps/s)
   %
