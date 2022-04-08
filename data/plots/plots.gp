@@ -20,9 +20,10 @@ labels = "'None' \
          'Stream C_c' \
          'Arithm'"
 
+
 set xlabel font ",15" "Microkernel dimensions (m_r x n_r)"
-set output '~/Blis_family_model/data/plots/time_all_B3A2C0.eps'
-plot "~/Blis_family_model/data/plots/time_B3A2C0.dat"  using 9 t word(labels, 9),  \
+set output './time_all_B3A2C0.eps'
+plot "<(sed -n '1,10p; 14,15p; 20p; 26p; 32p' ./time_B3A2C0.dat)" using 9 t word(labels, 9),  \
                                '' using 8 t word(labels, 8),  \
                                '' using 7 t word(labels, 7),\
                                '' using 6 t word(labels, 6),\
@@ -32,8 +33,8 @@ plot "~/Blis_family_model/data/plots/time_B3A2C0.dat"  using 9 t word(labels, 9)
                                '' using 2:xtic(1) t word(labels, 2)\
 
 set xlabel font ",15" "Microkernel dimensions (m_r x k_r)"
-set output '~/Blis_family_model/data/plots/time_all_B3C2A0.eps'
-plot "~/Blis_family_model/data/plots/time_B3C2A0.dat"   using 9 t word(labels, 9),  \
+set output './time_all_B3C2A0.eps'
+plot "<(sed -n '1,10p; 14,15p; 20p; 26p; 32p' ./time_B3C2A0.dat)"   using 9 t word(labels, 9),  \
                                 '' using 8 t word(labels, 8),  \
                                 '' using 7 t word(labels, 7),\
                                 '' using 6 t word(labels, 6),\
@@ -42,8 +43,8 @@ plot "~/Blis_family_model/data/plots/time_B3C2A0.dat"   using 9 t word(labels, 9
                                 '' using 3 t word(labels, 3),\
                                 '' using 2:xtic(1) t word(labels, 2)\
 
-set output '~/Blis_family_model/data/plots/time_all_C3B2A0.eps'
-plot "~/Blis_family_model/data/plots/time_C3B2A0.dat"   using 9 t word(labels, 9),  \
+set output './time_all_C3B2A0.eps'
+plot "<(sed -n '1,10p; 14,15p; 20p; 26p; 32p' ./time_C3B2A0.dat)"   using 9 t word(labels, 9),  \
                                 '' using 8 t word(labels, 8),  \
                                 '' using 7 t word(labels, 7),\
                                 '' using 6 t word(labels, 6),\
