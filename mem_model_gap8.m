@@ -1,5 +1,5 @@
 function [MC, NC, KC, Mem_L1, Mem_L2, Mem_L3, Mem_L1_use, Mem_L2_use, ...
-     Mem_L3_use] = mem_model_gap8(variant, m, n, k, MR, NR, KR)
+          Mem_L3_use] = mem_model_gap8(variant, m, n, k, MR, NR, KR)
 
 %variant = 'C3B2A0'; %'B3A2C0' ; %'B3C2A0';
 %m = 1792; 
@@ -163,6 +163,20 @@ elseif variant == 'C3B2A0'
     Mem_L1 = Mem_L1 - Mem_L1_use;
     Mem_L2 = Mem_L2 - Mem_L2_use;
 %
+end
+
+
+% limits implemnetations
+if(MC >= 128)
+    MC=128;
+end
+
+if(NC >= 2048)
+    NC=2048;
+end
+
+if( KC >= 1024)
+    KC = 1024;
 end
 
 fprintf("------------------------------------------------\n");

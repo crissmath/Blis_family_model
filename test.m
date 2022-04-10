@@ -12,9 +12,9 @@ save_data   = 1;  % save data
 
 %
 % Matrix size layer 14  mobilnet v1.
-m = 512;
-n = 196;
-k = 4608;
+m = 256;
+n = 784;
+k = 2304;
 
 %
 % micro-panels size 
@@ -26,6 +26,7 @@ k = 4608;
 l  = 0;
 l1 = 0;
 l2 = 0;
+p  = 0;
 
 if(save_data == 1)
     %delete the last generate data
@@ -49,10 +50,17 @@ for mm = 4:4:(n_kernel*4)
             fprintf("                   MR=%d, NR=%d KR=%d                          \n",MR, NR, KR);
             fprintf("===============================================================\n");
 
+            % mc nc kc values 
+            
+
+
             %%if var_blis == 'B3A2C0'
                 % get parameters : mc, nc, kc
                 [MC, NC, KC, Mem_L1, Mem_L2, Mem_L3, Mem_L1_use, Mem_L2_use, ...
                 Mem_L3_use] = mem_model_gap8('B3A2C0', m, n, k, MR, NR, KR);
+                
+                p=p+1;
+                tiles_data(p,:) = [MC NC KC];
 
                 % model
                 [PackBc, PackAc, CopyBr, StreamAc, StreamBr, StreamCr, ...
@@ -61,6 +69,9 @@ for mm = 4:4:(n_kernel*4)
                 % get parameters : mc, nc, kc
                 [MC, NC, KC, Mem_L1, Mem_L2, Mem_L3, Mem_L1_use, Mem_L2_use, ...
                 Mem_L3_use] = mem_model_gap8('B3C2A0', m, n, k, MR, NR, KR);
+
+                p=p+1;
+                tiles_data(p,:) = [MC NC KC];
 
                 %model
                 [PackBc, PackCc, UnpackCc, CopyBr, StreamAr, StreamBr, StreamCr, ...
@@ -71,6 +82,9 @@ for mm = 4:4:(n_kernel*4)
                 [MC, NC, KC, Mem_L1, Mem_L2, Mem_L3, Mem_L1_use, Mem_L2_use, ...
                 Mem_L3_use] = mem_model_gap8('C3B2A0', m, n, k, MR, NR, KR);
                     
+
+                p=p+1;
+                tiles_data(p,:) = [MC NC KC];
                 % model  
                 [PackBc, PackCc, UnpackCc, CopyCr, StreamAr, StreamBc, StreamCc, ...
                 CrmemL1, CcmemL3, BcmemL2, time_C3B2A0] = gemm_blis_C3B2A0( m, n, k, MC, NC, KC, MR, KR );
@@ -156,3 +170,8 @@ if g_graphs == 1
 
     end
 end
+
+
+
+
+tiles_data
