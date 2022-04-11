@@ -7,14 +7,14 @@
 clear all
 
 n_kernel    = 6;  % # kernels
-g_graphs    = 1;  % generate graphs   Matlab/gnuplot
+g_graphs    = 0;  % generate graphs   Matlab/gnuplot
 save_data   = 1;  % save data
 
 %
 % Matrix size layer 14  mobilnet v1.
-m = 256;
-n = 784;
-k = 2304;
+m = 1024;
+n = 1000;
+k = 1;
 
 %
 % micro-panels size 
@@ -138,19 +138,66 @@ if save_data == 1
     fprintf(" ==============================\n"); 
     fprintf("              B3A2C0           \n");
     fprintf(" ==============================\n"); 
-    data_B3A2C0 = array2table(time_B3A2C0_t, 'Rownames', kernel_name_B3A2C0,'VariableNames', label_names)
+    data_B3A2C0 = array2table(time_B3A2C0_t, 'Rownames', kernel_name_B3A2C0,'VariableNames', label_names);
+    %data_B3A2C0.total = sum(data_B3A2C0{:,1:end},2)
     fprintf(" ==============================\n"); 
     fprintf("             B3C2A0            \n"); 
     fprintf(" ==============================\n"); 
-    data_B3C2A0 = array2table(time_B3C2A0_t, 'Rownames', kernel_name_B3C2A0,'VariableNames', label_names)
+    data_B3C2A0 = array2table(time_B3C2A0_t, 'Rownames', kernel_name_B3C2A0,'VariableNames', label_names);
+    %data_B3C2A0.total = sum(data_B3C2A0{:,1:end},2)
     fprintf(" ==============================\n"); 
     fprintf("            C3B2A0             \n"); 
     fprintf(" ==============================\n"); 
-    data_C3B2A0 = array2table(time_C3B2A0_t, 'Rownames', kernel_name_B3C2A0,'VariableNames', label_names)
+    data_C3B2A0 = array2table(time_C3B2A0_t, 'Rownames', kernel_name_B3C2A0,'VariableNames', label_names);
+    %data_C3B2A0.total = sum(data_C3B2A0{:,1:end},2)
 
+    %% All kernels data 
     writetable(data_B3A2C0, fname_B3A2C0_time, 'WriteRowNames', true, 'Delimiter',' ') ;
     writetable(data_B3C2A0, fname_B3C2A0_time, 'WriteRowNames', true, 'Delimiter',' ') ;
-    writetable(data_C3B2A0, fname_C3B2A0_time, 'WriteRowNames', true, 'Delimiter',' ') ;  
+    writetable(data_C3B2A0, fname_C3B2A0_time, 'WriteRowNames', true, 'Delimiter',' ') ;
+    
+
+    %subtable kernels 
+
+                    sub_names_krs   = [ {data_B3A2C0.Properties.RowNames{1 :9 ,:}}'; ...
+                                        {data_B3A2C0.Properties.RowNames{13:14,:}}';
+                                        {data_B3A2C0.Properties.RowNames{19   ,:}}';   
+                                        {data_B3A2C0.Properties.RowNames{25   ,:}}';
+                                        {data_B3A2C0.Properties.RowNames{31   ,:}}';];
+
+                    sub_data_B3A2C0 = [ data_B3A2C0{1 :9 ,:};
+                                        data_B3A2C0{13:14,:};
+                                        data_B3A2C0{19   ,:};   
+                                        data_B3A2C0{25   ,:};
+                                        data_B3A2C0{31   ,:}];
+
+                    sub_data_B3C2A0 = [ data_B3C2A0{1 :9 ,:};
+                                        data_B3C2A0{13:14,:};
+                                        data_B3C2A0{19   ,:};
+                                        data_B3C2A0{25   ,:};
+                                        data_B3C2A0{31   ,:}];
+
+                    sub_data_C3B2A0 = [ data_C3B2A0{1 :9 ,:};
+                                        data_C3B2A0{13:14,:};
+                                        data_C3B2A0{19   ,:};
+                                        data_C3B2A0{25   ,:};
+                                        data_C3B2A0{31   ,:}];
+
+
+    %best kernel for every variant
+        %Total times
+        total_time_B3A2C0 = (sum(sub_data_B3A2C0,2));
+        total_time_B3C2A0 = (sum(sub_data_B3C2A0,2));
+        total_time_C3B2A0 = (sum(sub_data_C3B2A0,2));
+    
+        %best times
+        [val1, ind1] = min(total_time_B3A2C0);
+        [val2, ind2] = min(total_time_B3C2A0);
+        [val3, ind3] = min(total_time_C3B2A0);
+
+        fprintf('B3A2C0  B3C2A0  C3B2A0\n');
+        fprintf("%d,%d,%d,%s,%s,%s\n",  val1, val2, val3,...
+                sub_names_krs{ind1}, sub_names_krs{ind2}, sub_names_krs{ind3});
 end
 
 
@@ -170,8 +217,3 @@ if g_graphs == 1
 
     end
 end
-
-
-
-
-tiles_data

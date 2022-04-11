@@ -9,7 +9,6 @@ find . -type f -name '*.pdf' -delete
 gnuplot /home/crirabe/Blis_family_model/data/plots/plots.gp
 echo "plots generate..."
 
-
 echo "start conversion esp to pdf..."
 for f in "/home/crirabe/Blis_family_model/data/plots/"*.eps
 	do
