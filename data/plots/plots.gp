@@ -48,7 +48,7 @@ plot "<(sed -n '1,10p; 14,15p; 20p; 26p; 32p' ~/Blis_family_model/data/plots/tim
                                 '' using 2:xtic(1) t word(labels, 2)\
 
                                 
-set title "(b) C3B2A0" font "Helvetica, 15" enhanced 
+set title "(C) C3B2A0" font "Helvetica, 15" enhanced 
 set xlabel font ",22" "Microkernel dimensions (m_r x k_r)"
 set output '~/Blis_family_model/data/plots//time_all_C3B2A0.eps'
 plot "<(sed -n '1,10p; 14,15p; 20p; 26p; 32p' ~/Blis_family_model/data/plots/time_C3B2A0.dat)"   using 9 t word(labels, 9),  \

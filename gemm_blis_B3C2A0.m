@@ -16,27 +16,34 @@ function [PackBc, PackCc, UnpackCc, CopyBr, StreamA, StreamBr, StreamCc, ...
   %
   % Capacity of cache memories
   %
-  CapacityL1 =  16*KiB;
+  CapacityL1 =  64*KiB;
   CapacityL2 = 512*KiB;
   CapacityL3 = inf*KiB;
 
   %
   % Experimental transfer rates (in MBytes/s)
   %
+  %L1toReg    = 1.82E+02;
+  %L2toReg    = 6.92E+00;
+  %L3toReg    = 4.39E-01;
+  %L3toL2toL3 = 5.76E-01;
+  %L3toL1     = 1.76E+01;
+  %L3toL2     = 5.44E-01;
+  %L2toL3     = 6.61E-01;
+
   L1toReg    = 1.82E+02;
   L2toReg    = 6.92E+00;
   L3toReg    = 4.39E-01;
-  L3toL2toL3 = 5.76E-01;
-  L3toL1     = 1.76E+01;
-  L3toL2     = 5.44E-01;
-  L2toL3     = 6.61E-01;
-
+  L3toL2toL3 = 11.04;
+  L3toL1     = 61.71;
+  L3toL2     = 23.17;
+  L2toL3     = 22.13;
   %
   TRPackBc   = L3toL2toL3 * (KR/4); % L3 --> L2 --> L3
   TRPackCc   = L3toL2     * (MR/4); % L3 --> L2
   TRUnpackCc = L2toL3     * (MR/4); % L2 --> L3
   TRCopyBr   = L3toL1;              % L3 --> L1
-  TRStreamA = L3toReg;             % L3 --> Reg.
+  TRStreamA  = L3toReg;             % L3 --> Reg.
   TRStreamBr = L1toReg;             % L1 --> Reg.
   TRStreamCc = L2toReg;             % L2 --> Reg.
 
@@ -80,11 +87,11 @@ function [PackBc, PackCc, UnpackCc, CopyBr, StreamA, StreamBr, StreamCc, ...
   %
   % Calculate volume of data transfers
   %
-  PackBc    = 0;    % L3 --> L2 --> L3 (pack B to Bc)
-  PackCc    = 0;    % L3 --> L2        (pack C to Cc)
-  UnpackCc  = 0;    % L2 --> L3        (Unpack Cc to C)
-  CopyBr    = 0;    % L3 --> L1        (pack Bc to Br)
-  StreamA  = 0;   % L3 --> registers
+  PackBc    = 0;   % L3 --> L2 --> L3 (pack B to Bc)
+  PackCc    = 0;   % L3 --> L2        (pack C to Cc)
+  UnpackCc  = 0;   % L2 --> L3        (Unpack Cc to C)
+  CopyBr    = 0;   % L3 --> L1        (pack Bc to Br)
+  StreamA   = 0;   % L3 --> registers
   StreamBr  = 0;   % L1 --> registers
   StreamCc  = 0;   % L2 --> registers --> L2
 
@@ -136,7 +143,7 @@ function [PackBc, PackCc, UnpackCc, CopyBr, StreamA, StreamBr, StreamCc, ...
   TimePackCc     = DataSize * PackCc / (TRPackCc * MiB);
   TimeUnpackCc   = DataSize * UnpackCc / (TRUnpackCc * MiB);
   TimeCopyBr     = DataSize * CopyBr / (TRCopyBr * MiB);
-  TimeStreamA   = DataSize * StreamA / (TRStreamA * MiB);
+  TimeStreamA    = DataSize * StreamA / (TRStreamA * MiB);
   TimeStreamBr   = DataSize * StreamBr / (TRStreamBr * MiB);
   TimeStreamCc   = DataSize * StreamCc / (TRStreamCc * MiB);
 

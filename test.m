@@ -6,15 +6,19 @@
 %var_blis  = 'B3A2C0';
 clear all
 
-n_kernel    = 6;  % # kernels
+n_kernel    = 6;  % # kernels (the minium number is 6, because need this for autoindexing)
 g_graphs    = 0;  % generate graphs   Matlab/gnuplot
 save_data   = 1;  % save data
 
 %
 % Matrix size layer 14  mobilnet v1.
-m = 1024;
-n = 1000;
-k = 1;
+%m = 1792;
+%n = 1536;
+%k = 1024;
+
+m = 256;
+n = 784;
+k = 2304;
 
 %
 % micro-panels size 
@@ -143,8 +147,8 @@ if save_data == 1
     fprintf(" ==============================\n"); 
     fprintf("             B3C2A0            \n"); 
     fprintf(" ==============================\n"); 
-    data_B3C2A0 = array2table(time_B3C2A0_t, 'Rownames', kernel_name_B3C2A0,'VariableNames', label_names);
-    %data_B3C2A0.total = sum(data_B3C2A0{:,1:end},2)
+    data_B3C2A0 = array2table(time_B3C2A0_t, 'Rownames', kernel_name_B3C2A0,'VariableNames', label_names)
+    data_B3C2A0.total = sum(data_B3C2A0{:,1:end},2)
     fprintf(" ==============================\n"); 
     fprintf("            C3B2A0             \n"); 
     fprintf(" ==============================\n"); 

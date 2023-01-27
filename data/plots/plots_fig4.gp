@@ -7,7 +7,7 @@ set style fill solid border -1
 # bars with 
 set boxwidth 0.75
 set grid ytics
-set yrange [0:60]
+set yrange [0:70]
 
 
 set key top left box Left reverse maxrows 2
