@@ -9,3 +9,7 @@ use this command for execute :
 `
 matlab -nodisplay -r "test ; exit
 `
+
+
+This work has been developed under the supervision of Enrique Quintana Orti, at the Polytechnic University of Valencia. 
+
