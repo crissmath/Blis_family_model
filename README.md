@@ -15,7 +15,8 @@ This work has been carried out based on and under the supervision of Enrique Qui
 [Performance Analysis of Matrix Multiplication for Deep Learning on the Edge](https://link.springer.com/chapter/10.1007/978-3-031-23220-6_5)
 
 
-If you have found it useful or would like to use this project please share it this way: 
+If this work has been useful to you :) please feel free to cite it in this way: 
+
 ```
 @inproceedings{ramirez2023performance,
   title={Performance Analysis of Matrix Multiplication for Deep Learning on the Edge},
