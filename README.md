@@ -3,38 +3,40 @@
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
 ![MATLAB](https://img.shields.io/badge/MATLAB-R2023b+-blue.svg)
 
-[cite_start]MATLAB-based implementation and exploration of the **BLIS (Basic Linear Algebra Instantiation Software)** family model for high-performance matrix multiplication (GEMM)[cite: 1, 67].
+MATLAB-based implementation and exploration of the **BLIS (Basic Linear Algebra Instantiation Software)** family model for high-performance matrix multiplication (GEMM).
 
 ---
 
 ## 🚀 Overview
 
-[cite_start]This repository presents a MATLAB implementation of the BLIS family model, aimed at studying and understanding the structural and algorithmic foundations of high-performance matrix multiplication[cite: 67, 71]. 
+This repository presents a MATLAB implementation of the BLIS family model, aimed at studying and understanding the structural and algorithmic foundations of high-performance matrix multiplication. 
 
-The project focuses on expressing **GEMM** through BLIS-inspired decomposition strategies, enabling experimentation with:
-* [cite_start]**Loop ordering** and transformations[cite: 73].
-* [cite_start]**Blocking (Tiling)** strategies aware of memory hierarchy[cite: 73, 75].
-* [cite_start]**Memory-aware computations** at a conceptual level[cite: 73].
+The project is specifically **configured and tuned for the GAP8 processor** (RISC-V architecture), focusing on expressing **GEMM** through BLIS-inspired decomposition strategies. It enables experimentation with:
+
+* **Loop ordering** and transformations specific to the GAP8 memory hierarchy.
+* **Blocking (Tiling)** strategies aware of memory hierarchy (L1/L2 constraints).
+* **Memory-aware computations** at a conceptual level to maximize data reuse.
 
 ---
 
 ## 🧠 Key Concepts
 
-* [cite_start]**BLIS Decomposition:** Implementation of the six-loop structure for GEMM[cite: 29, 67].
-* [cite_start]**Matrix Reformulation:** Understanding GEMM from an outer-product perspective[cite: 67].
-* [cite_start]**Cache-Aware Modeling:** Conceptual algorithmic modeling of high-performance kernels[cite: 73, 76].
-* [cite_start]**HW/SW Co-design:** A bridge between theoretical linear algebra and hardware-specific optimization[cite: 35, 75].
+* **GAP8 Optimization:** Tailored algorithmic structures for the GreenWaves Technologies GAP8 IoT processor.
+* **BLIS Decomposition:** Implementation of the six-loop structure for GEMM.
+* **Matrix Reformulation:** Understanding GEMM from an outer-product perspective.
+* **Cache-Aware Modeling:** Conceptual algorithmic modeling of high-performance kernels.
+* **HW/SW Co-design:** A bridge between theoretical linear algebra and hardware-specific optimization on RISC-V.
 
 ---
 
 ## 🛠️ Implementation
 
 The repository includes:
-* [cite_start]**BLIS-like GEMM:** Structured MATLAB functions following the standard BLIS decomposition[cite: 29, 67].
-* [cite_start]**Algorithmic Modeling:** Tools for comparing different loop organizations and their impact on data movement[cite: 73].
-* [cite_start]**Reproducibility:** A clear path from the theoretical models described in related publications to functional code[cite: 77].
+* **BLIS-like GEMM:** Structured MATLAB functions following the standard BLIS decomposition.
+* **Algorithmic Modeling:** Tools for comparing different loop organizations and their impact on data movement.
+* **Reproducibility:** A clear path from the theoretical models described in related publications to functional code.
 
-[cite_start]*Note: This work emphasizes the clarity of the model and structural organization rather than low-level assembly or intrinsics optimization[cite: 78].*
+*Note: This work emphasizes the clarity of the model and structural organization rather than low-level assembly or intrinsics optimization.*
 
 ---
 
@@ -46,7 +48,7 @@ The repository includes:
 
 '''matlab
 % Example execution
-test.m
+test
 
 ## 📈 Research & Publications
 
